@@ -12,8 +12,13 @@ export const registerUser: ValidatedHandler = [
   validate.sendErrorsIfExist,
   async (req, res) => {
     const { user, email, password } = req.body;
-    await User.create({ user, email, password: await pwd.hash(password) });
-    res.sendStatus(201);
+    const createdUser = await User.create({
+      user,
+      email,
+      password: await pwd.hash(password),
+    });
+
+    token.send(res, 201, createdUser);
   },
 ];
 
