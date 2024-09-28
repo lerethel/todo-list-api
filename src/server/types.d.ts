@@ -20,7 +20,7 @@ export interface IUser {
   user: string;
   email: string;
   password: string;
-  refreshToken?: string;
+  refreshTokens?: string[];
 }
 
 export interface ITodo {

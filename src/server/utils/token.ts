@@ -42,7 +42,8 @@ export const send = async (
 
   res.cookie("jwt", refreshToken, refreshTokenCookieOptions);
 
-  user.refreshToken = refreshToken;
+  user.refreshTokens ??= [];
+  user.refreshTokens.push(refreshToken);
   await user.save();
 
   res.status(status).json({ token: accessToken });
@@ -57,13 +58,13 @@ export const revoke: RequestHandler = async (req, res) => {
 
   res.clearCookie("jwt", refreshTokenCookieOptions);
 
-  const user = await User.findOne({ refreshToken }).exec();
+  const user = await User.findOne({ refreshTokens: refreshToken }).exec();
 
-  if (!user) {
+  if (!user?.refreshTokens) {
     return res.sendStatus(204);
   }
 
-  user.refreshToken = undefined;
+  user.refreshTokens = user.refreshTokens.filter((rt) => rt !== refreshToken);
   await user.save();
 
   res.sendStatus(204);
@@ -95,9 +96,12 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
     return res.sendStatus(401);
   }
 
-  const user = await User.findOne({ refreshToken }, "_id").exec();
+  const user = await User.findOne(
+    { refreshTokens: refreshToken },
+    "_id, refreshTokens"
+  ).exec();
 
-  if (!user) {
+  if (!user?.refreshTokens) {
     return res.sendStatus(403);
   }
 
