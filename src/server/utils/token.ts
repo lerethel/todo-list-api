@@ -106,9 +106,7 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
   }
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    const storedUser = (decoded as jwt.JwtPayload).user;
-
-    if (err || user._id.toString() !== storedUser) {
+    if (err || user._id.toString() !== (decoded as jwt.JwtPayload).user) {
       return res.sendStatus(403);
     }
 
