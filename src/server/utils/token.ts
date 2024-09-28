@@ -3,6 +3,7 @@ import type { HydratedDocument } from "mongoose";
 import type { IUser, RequestHandler } from "../types.js";
 
 import jwt from "jsonwebtoken";
+import { isValidObjectId } from "mongoose";
 import User from "../models/user.js";
 
 // Both ages are in seconds.
@@ -106,7 +107,36 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
   ).exec();
 
   if (!user?.refreshTokens) {
-    return res.sendStatus(403);
+    // If a refresh token is in the cookies but not in the database,
+    // consider this a refresh token reuse attempt. Extract the user id
+    // from the token and delete all of their refresh tokens.
+    return jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          return res.sendStatus(403);
+        }
+
+        const storedUser = (decoded as jwt.JwtPayload).user;
+
+        if (!isValidObjectId(storedUser)) {
+          return res.sendStatus(403);
+        }
+
+        const hackedUser = await User.findById(
+          storedUser,
+          "refreshTokens"
+        ).exec();
+
+        if (hackedUser) {
+          hackedUser.refreshTokens = undefined;
+          await hackedUser.save();
+        }
+
+        res.sendStatus(403);
+      }
+    );
   }
 
   jwt.verify(
