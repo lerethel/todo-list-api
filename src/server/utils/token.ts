@@ -25,6 +25,10 @@ function createRefresh(user: HydratedDocument<IUser>) {
   );
 }
 
+function removeRefresh(user: HydratedDocument<IUser>, refreshToken: string) {
+  return (user.refreshTokens ?? []).filter((rt) => rt !== refreshToken);
+}
+
 const refreshTokenCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: true,
@@ -64,7 +68,7 @@ export const revoke: RequestHandler = async (req, res) => {
     return res.sendStatus(204);
   }
 
-  user.refreshTokens = user.refreshTokens.filter((rt) => rt !== refreshToken);
+  user.refreshTokens = removeRefresh(user, refreshToken);
   await user.save();
 
   res.sendStatus(204);
@@ -105,11 +109,23 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
     return res.sendStatus(403);
   }
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || user._id.toString() !== (decoded as jwt.JwtPayload).user) {
-      return res.sendStatus(403);
-    }
+  jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET,
+    async (err, decoded) => {
+      if (err || user._id.toString() !== (decoded as jwt.JwtPayload).user) {
+        return res.sendStatus(403);
+      }
 
-    res.json({ token: createAccess(user) });
-  });
+      const newRefreshToken = createRefresh(user);
+
+      // Replace the refresh token with a new one.
+      res.cookie("jwt", newRefreshToken, refreshTokenCookieOptions);
+      user.refreshTokens = removeRefresh(user, refreshToken);
+      user.refreshTokens.push(newRefreshToken);
+      await user.save();
+
+      res.json({ token: createAccess(user) });
+    }
+  );
 };
