@@ -2,32 +2,24 @@ import type { CookieOptions, Response } from "express";
 import type { HydratedDocument } from "mongoose";
 import type { IUser, RequestHandler } from "../types.js";
 
+import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
-import { isValidObjectId } from "mongoose";
-import User from "../models/user.js";
+import Token from "../models/token.js";
 
 // Both ages are in seconds.
 const accessTokenMaxAge = 300;
 const refreshTokenMaxAge = 60 * 60 * 24 * 180;
 
-function createAccess(user: HydratedDocument<IUser>) {
-  return jwt.sign(
-    { user: user._id.toString() },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: accessTokenMaxAge }
-  );
+function createAccess(user: string) {
+  return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: accessTokenMaxAge,
+  });
 }
 
-function createRefresh(user: HydratedDocument<IUser>) {
-  return jwt.sign(
-    { user: user._id.toString() },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: refreshTokenMaxAge }
-  );
-}
-
-function removeRefresh(user: HydratedDocument<IUser>, refreshToken: string) {
-  return (user.refreshTokens ?? []).filter((rt) => rt !== refreshToken);
+function createRefresh(user: string, family: string) {
+  return jwt.sign({ user, family }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: refreshTokenMaxAge,
+  });
 }
 
 const refreshTokenCookieOptions: CookieOptions = {
@@ -42,35 +34,23 @@ export const send = async (
   status: number,
   user: HydratedDocument<IUser>
 ) => {
-  const refreshToken = createRefresh(user);
-  const accessToken = createAccess(user);
+  const id = user._id.toString();
+  const family = randomUUID();
+  const refreshToken = createRefresh(id, family);
 
   res.cookie("jwt", refreshToken, refreshTokenCookieOptions);
+  await Token.create({ user: id, family, refreshToken });
 
-  user.refreshTokens ??= [];
-  user.refreshTokens.push(refreshToken);
-  await user.save();
-
-  res.status(status).json({ token: accessToken });
+  res.status(status).json({ token: createAccess(id) });
 };
 
 export const revoke: RequestHandler = async (req, res) => {
-  const refreshToken = req.cookies?.jwt;
+  const refreshToken = req.cookies.jwt;
 
-  if (!refreshToken) {
-    return res.sendStatus(204);
+  if (refreshToken) {
+    res.clearCookie("jwt", refreshTokenCookieOptions);
+    await Token.deleteOne({ refreshToken }).exec();
   }
-
-  res.clearCookie("jwt", refreshTokenCookieOptions);
-
-  const user = await User.findOne({ refreshTokens: refreshToken }).exec();
-
-  if (!user?.refreshTokens) {
-    return res.sendStatus(204);
-  }
-
-  user.refreshTokens = removeRefresh(user, refreshToken);
-  await user.save();
 
   res.sendStatus(204);
 };
@@ -101,59 +81,36 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
     return res.sendStatus(401);
   }
 
-  const user = await User.findOne(
-    { refreshTokens: refreshToken },
-    "_id, refreshTokens"
-  ).exec();
-
-  if (!user?.refreshTokens) {
-    // If a refresh token is in the cookies but not in the database,
-    // consider this a refresh token reuse attempt. Extract the user id
-    // from the token and delete all of their refresh tokens.
-    return jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-      async (err, decoded) => {
-        if (err) {
-          return res.sendStatus(403);
-        }
-
-        const storedUser = (decoded as jwt.JwtPayload).user;
-
-        if (!isValidObjectId(storedUser)) {
-          return res.sendStatus(403);
-        }
-
-        const hackedUser = await User.findById(
-          storedUser,
-          "refreshTokens"
-        ).exec();
-
-        if (hackedUser) {
-          hackedUser.refreshTokens = undefined;
-          await hackedUser.save();
-        }
-
-        res.sendStatus(403);
-      }
-    );
-  }
-
   jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err || user._id.toString() !== (decoded as jwt.JwtPayload).user) {
+      if (err) {
         return res.sendStatus(403);
       }
 
-      const newRefreshToken = createRefresh(user);
+      const storedToken = await Token.findOne({ refreshToken }).exec();
+      const { user, family } = decoded as jwt.JwtPayload;
+
+      // If a refresh token is in the cookies but not in the database,
+      // consider this a reuse attempt and delete the compromised family.
+      if (!storedToken) {
+        await Token.deleteOne({ family }).exec();
+        return res.sendStatus(403);
+      }
+
+      if (storedToken.user.toString() !== user) {
+        return res.sendStatus(403);
+      }
+
+      const newRefreshToken = createRefresh(user, family);
 
       // Replace the refresh token with a new one.
       res.cookie("jwt", newRefreshToken, refreshTokenCookieOptions);
-      user.refreshTokens = removeRefresh(user, refreshToken);
-      user.refreshTokens.push(newRefreshToken);
-      await user.save();
+      await Token.replaceOne(
+        { refreshToken },
+        { user, family, refreshToken: newRefreshToken }
+      ).exec();
 
       res.json({ token: createAccess(user) });
     }

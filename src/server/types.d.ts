@@ -20,7 +20,12 @@ export interface IUser {
   user: string;
   email: string;
   password: string;
-  refreshTokens?: string[];
+}
+
+export interface IToken {
+  user: mongoose.Types.ObjectId;
+  family: string;
+  refreshToken: string;
 }
 
 export interface ITodo {
