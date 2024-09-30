@@ -1,9 +1,11 @@
 import type { ValidatedHandler } from "../types.js";
 
 import Todo from "../models/todo.js";
+import { verifyAccess } from "../utils/token.js";
 import * as validate from "../utils/validate.js";
 
 export const createTodo: ValidatedHandler = [
+  verifyAccess,
   validate.todoTitle,
   validate.todoDescription,
   validate.sendErrorsIfExist,
@@ -15,6 +17,7 @@ export const createTodo: ValidatedHandler = [
 ];
 
 export const getTodos: ValidatedHandler = [
+  verifyAccess,
   validate.todoPageQuery,
   validate.todoLimitQuery,
   validate.todoSortQuery,
@@ -63,6 +66,7 @@ export const getTodos: ValidatedHandler = [
 ];
 
 export const updateTodo: ValidatedHandler = [
+  verifyAccess,
   validate.todoTitle,
   validate.todoDescription,
   validate.todoIdParam,
@@ -79,6 +83,7 @@ export const updateTodo: ValidatedHandler = [
 ];
 
 export const deleteTodo: ValidatedHandler = [
+  verifyAccess,
   validate.todoIdParam,
   validate.sendErrorsIfExist,
   async (req, res) => {

@@ -37,8 +37,17 @@ export interface ITodo {
 
 export type RequestHandler = express.RequestHandler;
 
-export type ValidatedHandler = [
-  ...validator.ValidationChain[],
-  RequestHandler,
-  RequestHandler
-];
+export type ValidatedHandler =
+  | [
+      validator.ValidationChain,
+      ...validator.ValidationChain[],
+      RequestHandler,
+      RequestHandler
+    ]
+  | [
+      RequestHandler,
+      validator.ValidationChain,
+      ...validator.ValidationChain[],
+      RequestHandler,
+      RequestHandler
+    ];
