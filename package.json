@@ -5,8 +5,9 @@
   "scripts": {
     "start": "node --env-file=./.env ./build/server/app.js",
     "dev": "npx tsx watch --env-file=./.env ./src/server/app.ts",
-    "build": "npx tsc",
-    "check": "npx tsc --noEmit"
+    "build": "npx rimraf ./build & npx tsc",
+    "check": "npx tsc --noEmit",
+    "test": "npm run build & npx tsx --env-file=./.env ./node_modules/mocha/bin/mocha --exit ./tests/main.ts"
   },
   "type": "module",
   "keywords": [],
@@ -25,9 +26,12 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/mocha": "^10.0.8",
     "@types/node": "^22.5.4",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
+    "mocha": "^10.7.3",
+    "rimraf": "^6.0.1",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.5.0"
