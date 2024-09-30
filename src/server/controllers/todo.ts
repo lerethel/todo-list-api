@@ -42,6 +42,7 @@ export const getTodos: ValidatedHandler = [
     const todos = await selection
       .skip((pageAsNumber - 1) * limitAsNumber)
       .limit(limitAsNumber)
+      .lean()
       .exec();
 
     const total = todos.length;
@@ -68,7 +69,7 @@ export const updateTodo: ValidatedHandler = [
   validate.sendErrorsIfExist,
   async (req, res) => {
     const { title, description } = req.body;
-    await Todo.findOneAndUpdate(
+    await Todo.updateOne(
       { user: req.user, _id: req.params.id },
       { title, description }
     ).exec();
@@ -81,7 +82,7 @@ export const deleteTodo: ValidatedHandler = [
   validate.todoIdParam,
   validate.sendErrorsIfExist,
   async (req, res) => {
-    await Todo.findOneAndDelete({ user: req.user, _id: req.params.id }).exec();
+    await Todo.deleteOne({ user: req.user, _id: req.params.id }).exec();
     res.sendStatus(204);
   },
 ];

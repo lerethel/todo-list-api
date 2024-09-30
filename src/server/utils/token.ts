@@ -1,5 +1,5 @@
 import type { CookieOptions, Response } from "express";
-import type { HydratedDocument } from "mongoose";
+import type { FlattenMaps, Types } from "mongoose";
 import type { IUser, RequestHandler } from "../types.js";
 
 import { randomUUID } from "crypto";
@@ -32,7 +32,7 @@ const refreshTokenCookieOptions: CookieOptions = {
 export const send = async (
   res: Response,
   status: number,
-  user: HydratedDocument<IUser>
+  user: FlattenMaps<IUser> & { _id: Types.ObjectId }
 ) => {
   const id = user._id.toString();
   const family = randomUUID();
@@ -89,7 +89,7 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
         return res.sendStatus(403);
       }
 
-      const storedToken = await Token.findOne({ refreshToken }).exec();
+      const storedToken = await Token.findOne({ refreshToken }).lean().exec();
       const { user, family } = decoded as jwt.JwtPayload;
 
       // If a refresh token is in the cookies but not in the database,
@@ -107,9 +107,9 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
 
       // Replace the refresh token with a new one.
       res.cookie("jwt", newRefreshToken, refreshTokenCookieOptions);
-      await Token.replaceOne(
+      await Token.updateOne(
         { refreshToken },
-        { user, family, refreshToken: newRefreshToken }
+        { refreshToken: newRefreshToken }
       ).exec();
 
       res.json({ token: createAccess(user) });

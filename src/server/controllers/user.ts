@@ -28,7 +28,7 @@ export const loginUser: ValidatedHandler = [
   validate.sendErrorsIfExist,
   async (req, res) => {
     const { email, password } = req.body;
-    const foundUser = await User.findOne({ email }).exec();
+    const foundUser = await User.findOne({ email }).lean().exec();
 
     if (!foundUser || !(await pwd.compare(foundUser.password, password))) {
       return res.sendStatus(401);
