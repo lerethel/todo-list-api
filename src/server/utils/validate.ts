@@ -1,6 +1,7 @@
 import type { RequestHandler } from "../types.js";
 
 import { body, param, query, validationResult } from "express-validator";
+import { isValidObjectId } from "mongoose";
 import Todo from "../models/todo.js";
 import User from "../models/user.js";
 
@@ -10,7 +11,7 @@ export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
   if (!errors.isEmpty()) {
     // Send only the messages.
     return res
-      .status(400)
+      .status(req.validationErrorStatus ?? 400)
       .json(errors.array().map(({ msg }) => ({ message: msg })));
   }
 
@@ -26,11 +27,17 @@ export const todoDescription = body("description")
   .withMessage("To-do description must be provided.");
 
 export const todoIdParam = param("id")
-  .custom(async (id, { req }) =>
-    (await Todo.exists({ user: req.user, _id: id }).exec())
-      ? Promise.resolve()
-      : Promise.reject()
-  )
+  .custom((id) => isValidObjectId(id))
+  .withMessage("Valid to-do id must be specified.")
+  .bail()
+  .custom(async (id, { req }) => {
+    if (await Todo.exists({ user: req.user, _id: id }).exec()) {
+      return Promise.resolve();
+    }
+
+    req.validationErrorStatus = 404;
+    return Promise.reject();
+  })
   .withMessage("Todo does not exist.");
 
 export const todoPageQuery = query("page")
@@ -75,9 +82,14 @@ export const userEmailOnRegister = body("email")
   .isEmail()
   .withMessage("Valid email must be specified.")
   .bail()
-  .custom(async (email) =>
-    (await User.exists({ email }).exec()) ? Promise.reject() : Promise.resolve()
-  )
+  .custom(async (email, { req }) => {
+    if (await User.exists({ email }).exec()) {
+      req.validationErrorStatus = 409;
+      return Promise.reject();
+    }
+
+    return Promise.resolve();
+  })
   .withMessage("User already exists.");
 
 export const userEmailOnLogin = body("email")
