@@ -39,7 +39,7 @@ export const login = async () => {
 };
 
 export const logout = (refreshToken: string) =>
-  request.get("/users/logout", { headers: { Cookie: "jwt=" + refreshToken } });
+  request.post("/users/logout", { headers: { Cookie: "jwt=" + refreshToken } });
 
 export const getJWTFromCookies = (response: Response) =>
   response.headers.getSetCookie()[0]?.match(/jwt=([^;]+?);/)?.[1] ?? "";

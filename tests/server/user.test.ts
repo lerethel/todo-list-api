@@ -41,8 +41,8 @@ describe("/users: auth", () => {
     assert.notStrictEqual(previousRefreshToken, refreshToken);
   });
 
-  it("GET /logout: expect 204 and no cookie", async () => {
-    const response = await request.get("/users/logout", {
+  it("POST /logout: expect 204 and no cookie", async () => {
+    const response = await request.post("/users/logout", {
       headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
     });
 
