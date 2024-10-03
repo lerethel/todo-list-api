@@ -1,6 +1,10 @@
 type LocalRequest = (
   url: string,
-  options?: RequestInit & { token?: string; data?: Record<string, string> }
+  options?: RequestInit & {
+    accessToken?: string;
+    refreshToken?: string;
+    data?: Record<string, string>;
+  }
 ) => Promise<Response>;
 
 const requestLocal: LocalRequest = (url, options = {}) => {
@@ -12,9 +16,14 @@ const requestLocal: LocalRequest = (url, options = {}) => {
     delete options.data;
   }
 
-  if (options.token) {
-    options.headers.set("Authorization", "Bearer " + options.token);
-    delete options.token;
+  if (options.accessToken) {
+    options.headers.set("Authorization", "Bearer " + options.accessToken);
+    delete options.accessToken;
+  }
+
+  if (options.refreshToken) {
+    options.headers.set("Cookie", "jwt=" + options.refreshToken);
+    delete options.refreshToken;
   }
 
   return fetch("http://localhost:3000" + url, options);
@@ -39,7 +48,7 @@ export const login = async () => {
 };
 
 export const logout = (refreshToken: string) =>
-  request.post("/users/logout", { headers: { Cookie: "jwt=" + refreshToken } });
+  request.post("/users/logout", { refreshToken });
 
 export const getJWTFromCookies = (response: Response) =>
   response.headers.getSetCookie()[0]?.match(/jwt=([^;]+?);/)?.[1] ?? "";

@@ -12,7 +12,7 @@ describe("/todos: authed", () => {
   it("POST, expect 201 and an id", async () => {
     const response = await request.post("/todos", {
       data: { title: "Test title", description: "Test description" },
-      token: accessToken,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 201);
@@ -23,7 +23,7 @@ describe("/todos: authed", () => {
   it("GET, expect 200 and the id created by POST", async () => {
     const response = await request.get(
       "/todos?page=1&limit=1&sort=-timestamp",
-      { token: accessToken }
+      { accessToken }
     );
 
     assert.strictEqual(response.status, 200);
@@ -33,7 +33,7 @@ describe("/todos: authed", () => {
   it("PUT, expect 200 and the same id", async () => {
     const response = await request.put("/todos/" + todoId, {
       data: { title: "Test title mod.", description: "Test description mod." },
-      token: accessToken,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 200);
@@ -41,9 +41,7 @@ describe("/todos: authed", () => {
   });
 
   it("DELETE, expect 204", async () => {
-    const response = await request.delete("/todos/" + todoId, {
-      token: accessToken,
-    });
+    const response = await request.delete("/todos/" + todoId, { accessToken });
     assert.strictEqual(response.status, 204);
   });
 
@@ -59,7 +57,7 @@ describe("/todos/invalid-id: authed", () => {
   it("PUT, expect 400", async () => {
     const response = await request.put("/todos/invalid-id", {
       data: { title: "Test title mod.", description: "Test description mod." },
-      token: accessToken,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 400);
@@ -67,7 +65,7 @@ describe("/todos/invalid-id: authed", () => {
 
   it("DELETE, expect 400", async () => {
     const response = await request.delete("/todos/invalid-id", {
-      token: accessToken,
+      accessToken,
     });
     assert.strictEqual(response.status, 400);
   });
@@ -84,7 +82,7 @@ describe("/todos/non-existent-id: authed", () => {
   it("PUT, expect 404", async () => {
     const response = await request.put("/todos/" + fakeObjectId, {
       data: { title: "Test title mod.", description: "Test description mod." },
-      token: accessToken,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 404);
@@ -92,7 +90,7 @@ describe("/todos/non-existent-id: authed", () => {
 
   it("DELETE, expect 404", async () => {
     const response = await request.delete("/todos/" + fakeObjectId, {
-      token: accessToken,
+      accessToken,
     });
     assert.strictEqual(response.status, 404);
   });
@@ -129,12 +127,12 @@ describe("/todos: unauthed", () => {
 });
 
 describe("/todos: invalid token", () => {
-  const token = "invalid";
+  const accessToken = "invalid";
 
   it("POST, expect 403", async () => {
     const response = await request.post("/todos", {
       data: { title: "Test title", description: "Test description" },
-      token,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 403);
@@ -143,7 +141,7 @@ describe("/todos: invalid token", () => {
   it("GET, expect 403", async () => {
     const response = await request.get(
       "/todos?page=1&limit=1&sort=-timestamp",
-      { token }
+      { accessToken }
     );
 
     assert.strictEqual(response.status, 403);
@@ -152,14 +150,16 @@ describe("/todos: invalid token", () => {
   it("PUT, expect 403", async () => {
     const response = await request.put("/todos/" + fakeObjectId, {
       data: { title: "Test title mod.", description: "Test description mod." },
-      token,
+      accessToken,
     });
 
     assert.strictEqual(response.status, 403);
   });
 
   it("DELETE, expect 403", async () => {
-    const response = await request.delete("/todos/" + fakeObjectId, { token });
+    const response = await request.delete("/todos/" + fakeObjectId, {
+      accessToken,
+    });
     assert.strictEqual(response.status, 403);
   });
 });

@@ -27,10 +27,7 @@ describe("/users: auth", () => {
     // If a new refresh token is immediately requested with the same payload,
     // it won't differ from the first one since their expiration times are the same.
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const response = await request.get("/users/refresh", {
-      headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-    });
+    const response = await request.get("/users/refresh", { refreshToken });
 
     assert.strictEqual(response.status, 200);
     assert.ok((await response.json()).token);
@@ -42,9 +39,7 @@ describe("/users: auth", () => {
   });
 
   it("POST /logout: expect 204 and no cookie", async () => {
-    const response = await request.post("/users/logout", {
-      headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-    });
+    const response = await request.post("/users/logout", { refreshToken });
 
     assert.strictEqual(response.status, 204);
     assert.ok(!getJWTFromCookies(response));
@@ -96,9 +91,7 @@ describe("/users: account management", () => {
 
   describe("read", () => {
     it("GET /me: expect 200", async () => {
-      const response = await request.get("/users/me", {
-        token: accessToken,
-      });
+      const response = await request.get("/users/me", { accessToken });
       const data = await response.json();
 
       assert.strictEqual(response.status, 200);
@@ -111,7 +104,7 @@ describe("/users: account management", () => {
     it("PUT /me: expect 200", async () => {
       const response = await request.put("/users/me", {
         data: modifiedUserData,
-        token: accessToken,
+        accessToken,
       });
 
       assert.strictEqual(response.status, 200);
@@ -120,7 +113,7 @@ describe("/users: account management", () => {
     it("PUT /me: expect 409", async () => {
       const response = await request.put("/users/me", {
         data: authData,
-        token: accessToken,
+        accessToken,
       });
 
       assert.strictEqual(response.status, 409);
@@ -130,7 +123,7 @@ describe("/users: account management", () => {
   describe("invalid token", () => {
     it("GET /me: expect 403", async () => {
       const response = await request.get("/users/me", {
-        token: refreshToken,
+        accessToken: refreshToken,
       });
 
       assert.strictEqual(response.status, 403);
@@ -139,7 +132,7 @@ describe("/users: account management", () => {
     it("PUT /me: expect 403", async () => {
       const response = await request.put("/users/me", {
         data: modifiedUserData,
-        token: refreshToken,
+        accessToken: refreshToken,
       });
 
       assert.strictEqual(response.status, 403);
@@ -147,8 +140,8 @@ describe("/users: account management", () => {
 
     it("DELETE /me: expect 403", async () => {
       const response = await request.delete("/users/me", {
-        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-        token: refreshToken,
+        refreshToken,
+        accessToken: refreshToken,
       });
 
       assert.strictEqual(response.status, 403);
@@ -158,8 +151,8 @@ describe("/users: account management", () => {
   describe("delete", () => {
     it("DELETE /me: expect 204", async () => {
       const response = await request.delete("/users/me", {
-        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-        token: accessToken,
+        refreshToken,
+        accessToken,
       });
 
       assert.strictEqual(response.status, 204);
@@ -168,9 +161,7 @@ describe("/users: account management", () => {
 
   describe("after deletion", () => {
     it("GET /me: expect 404", async () => {
-      const response = await request.get("/users/me", {
-        token: accessToken,
-      });
+      const response = await request.get("/users/me", { accessToken });
 
       assert.strictEqual(response.status, 404);
     });
@@ -178,7 +169,7 @@ describe("/users: account management", () => {
     it("PUT /me: expect 404", async () => {
       const response = await request.put("/users/me", {
         data: modifiedUserData,
-        token: accessToken,
+        accessToken,
       });
 
       assert.strictEqual(response.status, 404);
@@ -186,8 +177,8 @@ describe("/users: account management", () => {
 
     it("DELETE /me: expect 204", async () => {
       const response = await request.delete("/users/me", {
-        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-        token: accessToken,
+        refreshToken,
+        accessToken,
       });
 
       assert.strictEqual(response.status, 204);
