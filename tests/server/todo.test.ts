@@ -1,6 +1,6 @@
 import { after, before, describe, it } from "mocha";
 import assert from "node:assert";
-import { fakeTodoId, login, logout, request } from "./helpers/common.js";
+import { fakeObjectId, login, logout, request } from "./helpers/common.js";
 
 describe("/todos: authed", () => {
   let accessToken: string;
@@ -82,7 +82,7 @@ describe("/todos/non-existent-id: authed", () => {
   before(async () => ({ accessToken, refreshToken } = await login()));
 
   it("PUT, expect 404", async () => {
-    const response = await request.put("/todos/" + fakeTodoId, {
+    const response = await request.put("/todos/" + fakeObjectId, {
       data: { title: "Test title mod.", description: "Test description mod." },
       token: accessToken,
     });
@@ -91,7 +91,7 @@ describe("/todos/non-existent-id: authed", () => {
   });
 
   it("DELETE, expect 404", async () => {
-    const response = await request.delete("/todos/" + fakeTodoId, {
+    const response = await request.delete("/todos/" + fakeObjectId, {
       token: accessToken,
     });
     assert.strictEqual(response.status, 404);
@@ -115,7 +115,7 @@ describe("/todos: unauthed", () => {
   });
 
   it("PUT, expect 401", async () => {
-    const response = await request.put("/todos/" + fakeTodoId, {
+    const response = await request.put("/todos/" + fakeObjectId, {
       data: { title: "Test title mod.", description: "Test description mod." },
     });
 
@@ -123,7 +123,7 @@ describe("/todos: unauthed", () => {
   });
 
   it("DELETE, expect 401", async () => {
-    const response = await request.delete("/todos/" + fakeTodoId);
+    const response = await request.delete("/todos/" + fakeObjectId);
     assert.strictEqual(response.status, 401);
   });
 });
@@ -150,7 +150,7 @@ describe("/todos: invalid token", () => {
   });
 
   it("PUT, expect 403", async () => {
-    const response = await request.put("/todos/" + fakeTodoId, {
+    const response = await request.put("/todos/" + fakeObjectId, {
       data: { title: "Test title mod.", description: "Test description mod." },
       token,
     });
@@ -159,7 +159,7 @@ describe("/todos: invalid token", () => {
   });
 
   it("DELETE, expect 403", async () => {
-    const response = await request.delete("/todos/" + fakeTodoId, { token });
+    const response = await request.delete("/todos/" + fakeObjectId, { token });
     assert.strictEqual(response.status, 403);
   });
 });

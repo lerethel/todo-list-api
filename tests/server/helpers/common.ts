@@ -26,12 +26,12 @@ export const request: Record<string, LocalRequest> = {};
   request[method] = (url, options) => requestLocal(url, { ...options, method });
 });
 
-export const fakeTodoId = "2d9779cdcf7e4bf217880c9b";
+export const fakeObjectId = "2d9779cdcf7e4bf217880c9b";
 
 export const authData = { email: "user@example.com", password: "example" };
 
 export const login = async () => {
-  const response = await request.post("/login", { data: authData });
+  const response = await request.post("/users/login", { data: authData });
   return {
     accessToken: (await response.json()).token,
     refreshToken: getJWTFromCookies(response),
@@ -39,7 +39,7 @@ export const login = async () => {
 };
 
 export const logout = (refreshToken: string) =>
-  request.get("/logout", { headers: { Cookie: "jwt=" + refreshToken } });
+  request.get("/users/logout", { headers: { Cookie: "jwt=" + refreshToken } });
 
 export const getJWTFromCookies = (response: Response) =>
   response.headers.getSetCookie()[0]?.match(/jwt=([^;]+?);/)?.[1] ?? "";

@@ -97,9 +97,40 @@ export const userEmailOnLogin = body("email")
   .isEmail()
   .withMessage("Valid email must be specified.");
 
+export const userEmailOnUpdate = body("email")
+  .trim()
+  .isEmail()
+  .withMessage("Valid email must be specified.")
+  .bail()
+  .custom(async (email, { req }) => {
+    const user = await User.exists({ email }).exec();
+
+    if (!user || user._id.toString() === req.user) {
+      return Promise.resolve();
+    }
+
+    req.validationErrorStatus = 409;
+    return Promise.reject();
+  })
+  .withMessage("User already exists.");
+
 export const userPassword = body("password")
   .notEmpty()
   .withMessage("Password must be specified.")
   .bail()
   .isLength({ min: 6 })
   .withMessage("Password must contain at least 6 characters.");
+
+export const userIdParam = param("id")
+  .custom((id) => isValidObjectId(id))
+  .withMessage("Valid user id must be specified.")
+  .bail()
+  .custom(async (id, { req }) => {
+    if (req.user === id) {
+      return Promise.resolve();
+    }
+
+    req.validationErrorStatus = 404;
+    return Promise.reject();
+  })
+  .withMessage("User does not exist.");
