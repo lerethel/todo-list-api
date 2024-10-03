@@ -1,12 +1,7 @@
 import jwt from "jsonwebtoken";
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import {
-  authData,
-  fakeObjectId,
-  getJWTFromCookies,
-  request,
-} from "./helpers/common.js";
+import { authData, getJWTFromCookies, request } from "./helpers/common.js";
 
 describe("/users: auth", () => {
   let refreshToken: string;
@@ -100,23 +95,21 @@ describe("/users: account management", () => {
   });
 
   describe("read", () => {
-    it("GET /: expect 200", async () => {
-      const response = await request.get("/users/" + user, {
+    it("GET /me: expect 200", async () => {
+      const response = await request.get("/users/me", {
         token: accessToken,
       });
       const data = await response.json();
 
       assert.strictEqual(response.status, 200);
-      assert.ok(data.id);
       assert.ok(data.user);
       assert.ok(data.email);
-      assert.strictEqual(data.id, user);
     });
   });
 
   describe("update", () => {
-    it("PUT /: expect 200", async () => {
-      const response = await request.put("/users/" + user, {
+    it("PUT /me: expect 200", async () => {
+      const response = await request.put("/users/me", {
         data: modifiedUserData,
         token: accessToken,
       });
@@ -124,8 +117,8 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 200);
     });
 
-    it("PUT /: expect 409", async () => {
-      const response = await request.put("/users/" + user, {
+    it("PUT /me: expect 409", async () => {
+      const response = await request.put("/users/me", {
         data: authData,
         token: accessToken,
       });
@@ -134,73 +127,17 @@ describe("/users: account management", () => {
     });
   });
 
-  describe("non-existent user", () => {
-    it("GET /: expect 404", async () => {
-      const response = await request.get("/users/" + fakeObjectId, {
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 404);
-    });
-
-    it("PUT /: expect 404", async () => {
-      const response = await request.put("/users/" + fakeObjectId, {
-        data: modifiedUserData,
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 404);
-    });
-
-    it("DELETE /: expect 404", async () => {
-      const response = await request.delete("/users/" + fakeObjectId, {
-        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 404);
-    });
-  });
-
-  describe("invalid id", () => {
-    it("GET /: expect 400", async () => {
-      const response = await request.get("/users/invalid-id", {
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 400);
-    });
-
-    it("PUT /: expect 400", async () => {
-      const response = await request.put("/users/invalid-id", {
-        data: modifiedUserData,
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 400);
-    });
-
-    it("DELETE /: expect 400", async () => {
-      const response = await request.delete("/users/invalid-id", {
-        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
-        token: accessToken,
-      });
-
-      assert.strictEqual(response.status, 400);
-    });
-  });
-
   describe("invalid token", () => {
-    it("GET /: expect 403", async () => {
-      const response = await request.get("/users/" + user, {
+    it("GET /me: expect 403", async () => {
+      const response = await request.get("/users/me", {
         token: refreshToken,
       });
 
       assert.strictEqual(response.status, 403);
     });
 
-    it("PUT /: expect 403", async () => {
-      const response = await request.put("/users/" + user, {
+    it("PUT /me: expect 403", async () => {
+      const response = await request.put("/users/me", {
         data: modifiedUserData,
         token: refreshToken,
       });
@@ -208,8 +145,8 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 403);
     });
 
-    it("DELETE /: expect 403", async () => {
-      const response = await request.delete("/users/" + user, {
+    it("DELETE /me: expect 403", async () => {
+      const response = await request.delete("/users/me", {
         headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
         token: refreshToken,
       });
@@ -219,8 +156,36 @@ describe("/users: account management", () => {
   });
 
   describe("delete", () => {
-    it("DELETE /: expect 204", async () => {
-      const response = await request.delete("/users/" + user, {
+    it("DELETE /me: expect 204", async () => {
+      const response = await request.delete("/users/me", {
+        headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
+        token: accessToken,
+      });
+
+      assert.strictEqual(response.status, 204);
+    });
+  });
+
+  describe("after deletion", () => {
+    it("GET /me: expect 404", async () => {
+      const response = await request.get("/users/me", {
+        token: accessToken,
+      });
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("PUT /me: expect 404", async () => {
+      const response = await request.put("/users/me", {
+        data: modifiedUserData,
+        token: accessToken,
+      });
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("DELETE /me: expect 204", async () => {
+      const response = await request.delete("/users/me", {
         headers: refreshToken ? { Cookie: "jwt=" + refreshToken } : {},
         token: accessToken,
       });

@@ -8,7 +8,7 @@ router.post("/users/login", userController.loginUser);
 router.get("/users/refresh", userController.refreshUser);
 router.get("/users/logout", userController.logoutUser);
 router
-  .route("/users/:id")
+  .route("/users/me")
   .get(userController.getUser)
   .put(userController.updateUser)
   .delete(userController.deleteUser);

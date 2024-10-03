@@ -120,17 +120,3 @@ export const userPassword = body("password")
   .bail()
   .isLength({ min: 6 })
   .withMessage("Password must contain at least 6 characters.");
-
-export const userIdParam = param("id")
-  .custom((id) => isValidObjectId(id))
-  .withMessage("Valid user id must be specified.")
-  .bail()
-  .custom(async (id, { req }) => {
-    if (req.user === id) {
-      return Promise.resolve();
-    }
-
-    req.validationErrorStatus = 404;
-    return Promise.reject();
-  })
-  .withMessage("User does not exist.");

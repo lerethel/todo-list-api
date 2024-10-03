@@ -1,4 +1,4 @@
-import type { ValidatedHandler } from "../types.js";
+import type { RequestHandler, ValidatedHandler } from "../types.js";
 
 import Todo from "../models/todo.js";
 import Token from "../models/token.js";
@@ -44,49 +44,52 @@ export const refreshUser = token.verifyRefresh;
 
 export const logoutUser = token.revoke;
 
-export const getUser: ValidatedHandler = [
+export const getUser: [RequestHandler, RequestHandler] = [
   token.verifyAccess,
-  validate.userIdParam,
-  validate.sendErrorsIfExist,
   async (req, res) => {
-    const foundUser = await User.findById(req.params.id, "user email")
-      .lean()
-      .exec();
-    const { _id, user, email } = foundUser!;
-    res.status(200).json({ id: _id, user, email });
+    const foundUser = await User.findById(req.user, "user email").lean().exec();
+
+    if (!foundUser) {
+      return res.sendStatus(404);
+    }
+
+    const { user, email } = foundUser;
+    res.status(200).json({ user, email });
   },
 ];
 
 export const updateUser: ValidatedHandler = [
   token.verifyAccess,
-  validate.userIdParam,
   validate.userName,
   validate.userEmailOnUpdate,
   validate.userPassword,
   validate.sendErrorsIfExist,
   async (req, res) => {
     const { user, email, password } = req.body;
-    await User.updateOne(
-      { _id: req.user },
-      { user, email, password: await pwd.hash(password) }
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user,
+      { user, email, password: await pwd.hash(password) },
+      { returnDocument: "after", lean: true }
     ).exec();
+
+    if (!updatedUser) {
+      return res.sendStatus(404);
+    }
 
     res.sendStatus(200);
   },
 ];
 
-export const deleteUser: ValidatedHandler = [
+export const deleteUser: [RequestHandler, RequestHandler] = [
   token.verifyAccess,
-  validate.userIdParam,
-  validate.sendErrorsIfExist,
   async (req, res, next) => {
-    const { id } = req.params;
+    const { user } = req;
 
     // Delete the user and all their data.
     await Promise.all([
-      User.deleteOne({ _id: id }).exec(),
-      Todo.deleteMany({ user: id }).exec(),
-      Token.deleteMany({ user: id }).exec(),
+      User.deleteOne({ _id: user }).exec(),
+      Todo.deleteMany({ user }).exec(),
+      Token.deleteMany({ user }).exec(),
     ]);
 
     token.revoke(req, res, next);
