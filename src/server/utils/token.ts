@@ -64,14 +64,16 @@ export const verifyAccess: RequestHandler = (req, res, next) => {
 
   const token = authorization.split(" ")[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
+  try {
+    const { user } = <jwt.JwtPayload>(
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    );
 
-    req.user = (decoded as jwt.JwtPayload).user;
+    req.user = user;
     next();
-  });
+  } catch {
+    res.sendStatus(403);
+  }
 };
 
 export const verifyRefresh: RequestHandler = async (req, res) => {
@@ -81,38 +83,35 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
     return res.sendStatus(401);
   }
 
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, decoded) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
+  try {
+    const { user, family } = <jwt.JwtPayload>(
+      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+    );
 
-      const storedToken = await Token.findOne({ refreshToken }).lean().exec();
-      const { user, family } = decoded as jwt.JwtPayload;
+    const storedToken = await Token.findOne({ refreshToken }).lean().exec();
 
-      // If a refresh token is in the cookies but not in the database,
-      // consider this a reuse attempt and delete the compromised family.
-      if (!storedToken) {
-        await Token.deleteOne({ family }).exec();
-        return res.sendStatus(403);
-      }
-
-      if (storedToken.user.toString() !== user) {
-        return res.sendStatus(403);
-      }
-
-      const newRefreshToken = createRefresh(user, family);
-
-      // Replace the refresh token with a new one.
-      res.cookie("jwt", newRefreshToken, refreshTokenCookieOptions);
-      await Token.updateOne(
-        { refreshToken },
-        { refreshToken: newRefreshToken }
-      ).exec();
-
-      res.json({ token: createAccess(user) });
+    // If a refresh token is in the cookies but not in the database,
+    // consider this a reuse attempt and delete the compromised family.
+    if (!storedToken) {
+      await Token.deleteOne({ family }).exec();
+      return res.sendStatus(403);
     }
-  );
+
+    if (storedToken.user.toString() !== user) {
+      return res.sendStatus(403);
+    }
+
+    const newRefreshToken = createRefresh(user, family);
+
+    // Replace the refresh token with a new one.
+    res.cookie("jwt", newRefreshToken, refreshTokenCookieOptions);
+    await Token.updateOne(
+      { refreshToken },
+      { refreshToken: newRefreshToken }
+    ).exec();
+
+    res.json({ token: createAccess(user) });
+  } catch {
+    res.sendStatus(403);
+  }
 };
