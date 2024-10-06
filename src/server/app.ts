@@ -5,6 +5,13 @@ import express from "express";
 import mongoose from "mongoose";
 import todoRouter from "./routes/todo.js";
 import userRouter from "./routes/user.js";
+import statusCodes from "./utils/status-codes.js";
+
+// A replacement for res.sendStatus() that sends a JSON object in the validation
+// failure format used throughout the project (i.e., as an array of objects).
+express.response.jsonStatus = function (code) {
+  return this.status(code).json([{ message: statusCodes[code] ?? "" }]);
+};
 
 const port = process.env.PORT || 3000;
 
@@ -16,11 +23,11 @@ app.use(cookieParser());
 app.use(userRouter);
 app.use(todoRouter);
 
-app.use((req, res) => res.sendStatus(404));
+app.use((req, res) => res.jsonStatus(404));
 
 app.use(<ErrorRequestHandler>((err: Error, req, res, next) => {
   console.error(err.stack);
-  res.sendStatus(500);
+  res.jsonStatus(500);
 }));
 
 app.listen(port, () => console.log(`Server is listening on port ${port}`));

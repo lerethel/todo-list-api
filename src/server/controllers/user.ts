@@ -33,7 +33,7 @@ export const loginUser: ValidatedHandler = [
     const foundUser = await User.findOne({ email }).lean().exec();
 
     if (!foundUser || !(await pwd.compare(foundUser.password, password))) {
-      return res.sendStatus(401);
+      return res.jsonStatus(401);
     }
 
     token.send(res, 200, foundUser);
@@ -50,7 +50,7 @@ export const getUser: [RequestHandler, RequestHandler] = [
     const foundUser = await User.findById(req.user, "user email").lean().exec();
 
     if (!foundUser) {
-      return res.sendStatus(404);
+      return res.jsonStatus(404);
     }
 
     const { user, email } = foundUser;
@@ -73,10 +73,10 @@ export const updateUser: ValidatedHandler = [
     ).exec();
 
     if (!updatedUser) {
-      return res.sendStatus(404);
+      return res.jsonStatus(404);
     }
 
-    res.sendStatus(200);
+    res.jsonStatus(200);
   },
 ];
 

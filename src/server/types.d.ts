@@ -14,6 +14,9 @@ declare global {
       user?: string;
       validationErrorStatus?: number;
     }
+    interface Response {
+      jsonStatus: (code: number) => Response;
+    }
   }
 }
 

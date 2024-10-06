@@ -52,14 +52,14 @@ export const revoke: RequestHandler = async (req, res) => {
     await Token.deleteOne({ refreshToken }).exec();
   }
 
-  res.sendStatus(204);
+  res.jsonStatus(204);
 };
 
 export const verifyAccess: RequestHandler = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization?.startsWith("Bearer")) {
-    return res.sendStatus(401);
+    return res.jsonStatus(401);
   }
 
   const token = authorization.split(" ")[1];
@@ -72,7 +72,7 @@ export const verifyAccess: RequestHandler = (req, res, next) => {
     req.user = user;
     next();
   } catch {
-    res.sendStatus(403);
+    res.jsonStatus(403);
   }
 };
 
@@ -80,7 +80,7 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
   const refreshToken: string | undefined = req.cookies.jwt;
 
   if (!refreshToken) {
-    return res.sendStatus(401);
+    return res.jsonStatus(401);
   }
 
   try {
@@ -94,11 +94,11 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
     // consider this a reuse attempt and delete the compromised family.
     if (!storedToken) {
       await Token.deleteOne({ family }).exec();
-      return res.sendStatus(403);
+      return res.jsonStatus(403);
     }
 
     if (storedToken.user.toString() !== user) {
-      return res.sendStatus(403);
+      return res.jsonStatus(403);
     }
 
     const newRefreshToken = createRefresh(user, family);
@@ -112,6 +112,6 @@ export const verifyRefresh: RequestHandler = async (req, res) => {
 
     res.json({ token: createAccess(user) });
   } catch {
-    res.sendStatus(403);
+    res.jsonStatus(403);
   }
 };

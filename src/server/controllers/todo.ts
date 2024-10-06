@@ -51,7 +51,7 @@ export const getTodos: ValidatedHandler = [
     const total = todos.length;
 
     if (!total) {
-      return res.sendStatus(404);
+      return res.jsonStatus(404);
     }
 
     res.json({
@@ -88,6 +88,6 @@ export const deleteTodo: ValidatedHandler = [
   validate.sendErrorsIfExist,
   async (req, res) => {
     await Todo.deleteOne({ user: req.user, _id: req.params.id }).exec();
-    res.sendStatus(204);
+    res.jsonStatus(204);
   },
 ];
