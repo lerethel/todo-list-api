@@ -58,23 +58,69 @@ export const getUser: [RequestHandler, RequestHandler] = [
   },
 ];
 
-export const updateUser: ValidatedHandler = [
+export const updateUserName: ValidatedHandler = [
   token.verifyAccess,
   validate.userName,
+  validate.sendErrorsIfExist,
+  async (req, res) => {
+    const foundUser = await User.findById(req.user, "user").exec();
+
+    if (!foundUser) {
+      return res.jsonStatus(404);
+    }
+
+    foundUser.user = req.body.user;
+    foundUser.save();
+
+    res.jsonStatus(200);
+  },
+];
+
+export const updateUserEmail: ValidatedHandler = [
+  token.verifyAccess,
   validate.userEmailOnUpdate,
   validate.userPassword,
   validate.sendErrorsIfExist,
   async (req, res) => {
-    const { user, email, password } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user,
-      { user, email, password: await pwd.hash(password) },
-      { returnDocument: "after", lean: true }
-    ).exec();
+    const foundUser = await User.findById(req.user, "email password").exec();
 
-    if (!updatedUser) {
+    if (!foundUser) {
       return res.jsonStatus(404);
     }
+
+    const { email, password } = req.body;
+
+    if (!(await pwd.compare(foundUser.password, password))) {
+      return res.jsonStatus(400);
+    }
+
+    foundUser.email = email;
+    foundUser.save();
+
+    res.jsonStatus(200);
+  },
+];
+
+export const updateUserPassword: ValidatedHandler = [
+  token.verifyAccess,
+  validate.userPasswordOnUpdate,
+  validate.userNewPassword,
+  validate.sendErrorsIfExist,
+  async (req, res) => {
+    const foundUser = await User.findById(req.user, "password").exec();
+
+    if (!foundUser) {
+      return res.jsonStatus(404);
+    }
+
+    const { password, "new-password": newPassword } = req.body;
+
+    if (!(await pwd.compare(foundUser.password, password))) {
+      return res.jsonStatus(400);
+    }
+
+    foundUser.password = await pwd.hash(newPassword);
+    foundUser.save();
 
     res.jsonStatus(200);
   },

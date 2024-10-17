@@ -53,11 +53,18 @@ describe("/users: account management", () => {
     user: "New Example User",
   };
 
-  const modifiedUserData = {
+  const modifiedUserNameData = { user: "New Example User Mod." };
+
+  const modifiedUserEmailData = {
     // Use the same email to make sure there's no "user already exists" error.
     email: userData.email,
-    password: "new_example_mod",
-    user: "New Example User Mod.",
+    password: "new_example",
+  };
+
+  const modifiedUserPasswordData = {
+    password: "new_example",
+    "new-password": "new_example_mod",
+    "confirmed-new-password": "new_example_mod",
   };
 
   let accessToken: string;
@@ -101,22 +108,58 @@ describe("/users: account management", () => {
   });
 
   describe("update", () => {
-    it("PUT /me: expect 200", async () => {
-      const response = await request.put("/users/me", {
-        data: modifiedUserData,
+    it("PUT /me/user: expect 200", async () => {
+      const response = await request.put("/users/me/user", {
+        data: modifiedUserNameData,
         accessToken,
       });
 
       assert.strictEqual(response.status, 200);
     });
 
-    it("PUT /me: expect 409", async () => {
-      const response = await request.put("/users/me", {
+    it("PUT /me/email: expect 200", async () => {
+      const response = await request.put("/users/me/email", {
+        data: modifiedUserEmailData,
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 200);
+    });
+
+    it("PUT /me/password: expect 200", async () => {
+      const response = await request.put("/users/me/password", {
+        data: modifiedUserPasswordData,
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 200);
+    });
+
+    it("PUT /me/email: expect 409", async () => {
+      const response = await request.put("/users/me/email", {
         data: authData,
         accessToken,
       });
 
       assert.strictEqual(response.status, 409);
+    });
+
+    it("PUT /me/password: expect 400 (wrong current password)", async () => {
+      const response = await request.put("/users/me/password", {
+        data: { ...modifiedUserPasswordData, password: "wrong_password" },
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("PUT /me/password: expect 400 (new password not confirmed)", async () => {
+      const response = await request.put("/users/me/password", {
+        data: { ...modifiedUserPasswordData, "new-password": "not_confirmed" },
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 400);
     });
   });
 
@@ -129,9 +172,27 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 403);
     });
 
-    it("PUT /me: expect 403", async () => {
-      const response = await request.put("/users/me", {
-        data: modifiedUserData,
+    it("PUT /me/user: expect 403", async () => {
+      const response = await request.put("/users/me/user", {
+        data: modifiedUserNameData,
+        accessToken: refreshToken,
+      });
+
+      assert.strictEqual(response.status, 403);
+    });
+
+    it("PUT /me/email: expect 403", async () => {
+      const response = await request.put("/users/me/email", {
+        data: modifiedUserEmailData,
+        accessToken: refreshToken,
+      });
+
+      assert.strictEqual(response.status, 403);
+    });
+
+    it("PUT /me/password: expect 403", async () => {
+      const response = await request.put("/users/me/password", {
+        data: modifiedUserPasswordData,
         accessToken: refreshToken,
       });
 
@@ -166,9 +227,27 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 404);
     });
 
-    it("PUT /me: expect 404", async () => {
-      const response = await request.put("/users/me", {
-        data: modifiedUserData,
+    it("PUT /me/user: expect 404", async () => {
+      const response = await request.put("/users/me/user", {
+        data: modifiedUserNameData,
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("PUT /me/email: expect 404", async () => {
+      const response = await request.put("/users/me/email", {
+        data: modifiedUserEmailData,
+        accessToken,
+      });
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("PUT /me/password: expect 404", async () => {
+      const response = await request.put("/users/me/password", {
+        data: modifiedUserPasswordData,
         accessToken,
       });
 

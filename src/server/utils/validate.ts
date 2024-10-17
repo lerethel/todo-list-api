@@ -114,9 +114,37 @@ export const userEmailOnUpdate = body("email")
   })
   .withMessage("User already exists.");
 
-export const userPassword = body("password")
-  .notEmpty()
-  .withMessage("Password must be specified.")
+const createPasswordValidator = (
+  field: string,
+  passwordNotSpecifiedMessage: string,
+  passwordTooShortMessage: string
+) =>
+  body(field)
+    .notEmpty()
+    .withMessage(passwordNotSpecifiedMessage)
+    .bail()
+    .isLength({ min: 6 })
+    .withMessage(passwordTooShortMessage);
+
+export const userPassword = createPasswordValidator(
+  "password",
+  "Password must be specified.",
+  "Password must contain at least 6 characters."
+);
+
+export const userPasswordOnUpdate = createPasswordValidator(
+  "password",
+  "Current password must be specified.",
+  "Current password must contain at least 6 characters."
+);
+
+export const userNewPassword = createPasswordValidator(
+  "new-password",
+  "New password must be specified.",
+  "New password must contain at least 6 characters."
+)
   .bail()
-  .isLength({ min: 6 })
-  .withMessage("Password must contain at least 6 characters.");
+  .custom(
+    (newPassword, { req }) => newPassword === req.body["confirmed-new-password"]
+  )
+  .withMessage("Passwords do not match.");
