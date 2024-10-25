@@ -126,10 +126,21 @@ export const updateUserPassword: ValidatedHandler = [
   },
 ];
 
-export const deleteUser: [RequestHandler, RequestHandler] = [
+export const deleteUser: ValidatedHandler = [
   token.verifyAccess,
+  validate.userPassword,
+  validate.sendErrorsIfExist,
   async (req, res, next) => {
     const { user } = req;
+    const foundUser = await User.findById(user, "password").lean().exec();
+
+    if (!foundUser) {
+      return res.jsonStatus(404);
+    }
+
+    if (!(await pwd.compare(foundUser.password, req.body.password))) {
+      return res.jsonStatus(400);
+    }
 
     // Delete the user and all their data.
     await Promise.all([

@@ -67,6 +67,12 @@ describe("/users: account management", () => {
     "confirmed-new-password": "new_example_mod",
   };
 
+  const originalUserPasswordData = {
+    password: "new_example_mod",
+    "new-password": "new_example",
+    "confirmed-new-password": "new_example",
+  };
+
   let accessToken: string;
   let refreshToken: string;
   let user: string;
@@ -133,6 +139,11 @@ describe("/users: account management", () => {
       });
 
       assert.strictEqual(response.status, 200);
+      // Change the password back since it will be needed.
+      await request.put("/users/me/password", {
+        data: originalUserPasswordData,
+        accessToken,
+      });
     });
 
     it("PUT /me/email: expect 409", async () => {
@@ -199,8 +210,9 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 403);
     });
 
-    it("DELETE /me: expect 403", async () => {
-      const response = await request.delete("/users/me", {
+    it("POST /me/delete: expect 403", async () => {
+      const response = await request.post("/users/me/delete", {
+        data: userData,
         refreshToken,
         accessToken: refreshToken,
       });
@@ -210,8 +222,9 @@ describe("/users: account management", () => {
   });
 
   describe("delete", () => {
-    it("DELETE /me: expect 204", async () => {
-      const response = await request.delete("/users/me", {
+    it("POST /me/delete: expect 204", async () => {
+      const response = await request.post("/users/me/delete", {
+        data: userData,
         refreshToken,
         accessToken,
       });
@@ -254,13 +267,14 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 404);
     });
 
-    it("DELETE /me: expect 204", async () => {
-      const response = await request.delete("/users/me", {
+    it("POST /me/delete: expect 404", async () => {
+      const response = await request.post("/users/me/delete", {
+        data: userData,
         refreshToken,
         accessToken,
       });
 
-      assert.strictEqual(response.status, 204);
+      assert.strictEqual(response.status, 404);
     });
   });
 });
