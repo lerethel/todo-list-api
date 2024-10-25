@@ -1,4 +1,4 @@
-import type { IToken } from "../types.js";
+import type { IToken } from "../types/types.js";
 
 import mongoose from "mongoose";
 

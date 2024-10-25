@@ -1,6 +1,6 @@
 import type { CookieOptions, Response } from "express";
 import type { FlattenMaps, Types } from "mongoose";
-import type { IUser, RequestHandler } from "../types.js";
+import type { IUser, RequestHandler } from "../types/types.js";
 
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";

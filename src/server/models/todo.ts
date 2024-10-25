@@ -1,4 +1,4 @@
-import type { ITodo } from "../types.js";
+import type { ITodo } from "../types/types.js";
 
 import mongoose from "mongoose";
 

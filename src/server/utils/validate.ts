@@ -1,4 +1,4 @@
-import type { RequestHandler } from "../types.js";
+import type { RequestHandler } from "../types/types.js";
 
 import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";

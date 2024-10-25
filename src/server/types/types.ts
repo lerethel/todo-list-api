@@ -2,21 +2,13 @@ import type express from "express";
 import type validator from "express-validator";
 import type mongoose from "mongoose";
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      ACCESS_TOKEN_SECRET: string;
-      REFRESH_TOKEN_SECRET: string;
-    }
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: string;
+    validationErrorStatus?: number;
   }
-  namespace Express {
-    interface Request {
-      user?: string;
-      validationErrorStatus?: number;
-    }
-    interface Response {
-      jsonStatus: (code: number) => Response;
-    }
+  interface Response {
+    jsonStatus: (code: number) => Response;
   }
 }
 

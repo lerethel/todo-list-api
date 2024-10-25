@@ -1,4 +1,4 @@
-import type { RequestHandler, ValidatedHandler } from "../types.js";
+import type { RequestHandler, ValidatedHandler } from "../types/types.js";
 
 import Todo from "../models/todo.js";
 import Token from "../models/token.js";

@@ -1,4 +1,4 @@
-import type { ValidatedHandler } from "../types.js";
+import type { ValidatedHandler } from "../types/types.js";
 
 import Todo from "../models/todo.js";
 import { verifyAccess } from "../utils/token.js";

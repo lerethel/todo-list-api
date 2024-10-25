@@ -1,4 +1,4 @@
-import type { IUser } from "../types.js";
+import type { IUser } from "../types/types.js";
 
 import mongoose from "mongoose";
 
