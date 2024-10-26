@@ -82,6 +82,7 @@ export const userEmailOnRegister = body("email")
   .isEmail()
   .withMessage("Valid email must be specified.")
   .bail()
+  .toLowerCase()
   .custom(async (email, { req }) => {
     if (await User.exists({ email }).exec()) {
       req.validationErrorStatus = 409;
@@ -95,13 +96,15 @@ export const userEmailOnRegister = body("email")
 export const userEmailOnLogin = body("email")
   .trim()
   .isEmail()
-  .withMessage("Valid email must be specified.");
+  .withMessage("Valid email must be specified.")
+  .toLowerCase();
 
 export const userEmailOnUpdate = body("email")
   .trim()
   .isEmail()
   .withMessage("Valid email must be specified.")
   .bail()
+  .toLowerCase()
   .custom(async (email, { req }) => {
     const user = await User.exists({ email }).exec();
 
