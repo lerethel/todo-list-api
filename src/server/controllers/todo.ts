@@ -61,6 +61,9 @@ export const getTodos: ValidatedHandler = [
       page: pageAsNumber,
       limit: limitAsNumber,
       total,
+      totalPages: Math.ceil(
+        (await Todo.countDocuments({ user: req.user }).exec()) / limitAsNumber
+      ),
     });
   },
 ];
