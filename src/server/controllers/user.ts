@@ -13,9 +13,9 @@ export const registerUser: ValidatedHandler = [
   validate.userPassword,
   validate.sendErrorsIfExist,
   async (req, res) => {
-    const { user, email, password } = req.body;
+    const { name, email, password } = req.body;
     const createdUser = await User.create({
-      user,
+      name,
       email,
       password: await pwd.hash(password),
     });
@@ -47,14 +47,14 @@ export const logoutUser = token.revoke;
 export const getUser: [RequestHandler, RequestHandler] = [
   token.verifyAccess,
   async (req, res) => {
-    const foundUser = await User.findById(req.user, "user email").lean().exec();
+    const foundUser = await User.findById(req.user, "name email").lean().exec();
 
     if (!foundUser) {
       return res.jsonStatus(404);
     }
 
-    const { user, email } = foundUser;
-    res.status(200).json({ user, email });
+    const { name, email } = foundUser;
+    res.status(200).json({ name, email });
   },
 ];
 
@@ -63,13 +63,13 @@ export const updateUserName: ValidatedHandler = [
   validate.userName,
   validate.sendErrorsIfExist,
   async (req, res) => {
-    const foundUser = await User.findById(req.user, "user").exec();
+    const foundUser = await User.findById(req.user, "name").exec();
 
     if (!foundUser) {
       return res.jsonStatus(404);
     }
 
-    foundUser.user = req.body.user;
+    foundUser.name = req.body.name;
     foundUser.save();
 
     res.jsonStatus(200);

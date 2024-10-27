@@ -72,7 +72,7 @@ export const todoSortQuery = query("sort")
   )
   .withMessage("Valid field name(s) to sort by must be specified.");
 
-export const userName = body("user")
+export const userName = body("name")
   .trim()
   .notEmpty()
   .withMessage("User name must be specified.");

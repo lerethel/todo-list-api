@@ -13,7 +13,7 @@ declare module "express-serve-static-core" {
 }
 
 export interface IUser {
-  user: string;
+  name: string;
   email: string;
   password: string;
 }

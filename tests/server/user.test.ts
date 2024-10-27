@@ -50,10 +50,10 @@ describe("/users: account management", () => {
   const userData = {
     email: "new.user@example.com",
     password: "new_example",
-    user: "New Example User",
+    name: "New Example User",
   };
 
-  const modifiedUserNameData = { user: "New Example User Mod." };
+  const modifiedUserNameData = { name: "New Example User Mod." };
 
   const modifiedUserEmailData = {
     // Use the same email to make sure there's no "user already exists" error.
@@ -108,14 +108,14 @@ describe("/users: account management", () => {
       const data = await response.json();
 
       assert.strictEqual(response.status, 200);
-      assert.ok(data.user);
+      assert.ok(data.name);
       assert.ok(data.email);
     });
   });
 
   describe("update", () => {
-    it("PUT /me/user: expect 200", async () => {
-      const response = await request.put("/users/me/user", {
+    it("PUT /me/name: expect 200", async () => {
+      const response = await request.put("/users/me/name", {
         data: modifiedUserNameData,
         accessToken,
       });
@@ -183,8 +183,8 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 403);
     });
 
-    it("PUT /me/user: expect 403", async () => {
-      const response = await request.put("/users/me/user", {
+    it("PUT /me/name: expect 403", async () => {
+      const response = await request.put("/users/me/name", {
         data: modifiedUserNameData,
         accessToken: refreshToken,
       });
@@ -240,8 +240,8 @@ describe("/users: account management", () => {
       assert.strictEqual(response.status, 404);
     });
 
-    it("PUT /me/user: expect 404", async () => {
-      const response = await request.put("/users/me/user", {
+    it("PUT /me/name: expect 404", async () => {
+      const response = await request.put("/users/me/name", {
         data: modifiedUserNameData,
         accessToken,
       });
