@@ -16,7 +16,7 @@ express.response.jsonStatus = function (code) {
 const port = process.env.PORT || 3000;
 
 const app = express();
-mongoose.connect("mongodb://localhost:27017/todo-list");
+mongoose.connect(process.env.MONGODB_URI);
 
 app.use(express.json());
 app.use(cookieParser());

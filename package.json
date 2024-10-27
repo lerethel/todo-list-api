@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "./build/server/app.js",
   "scripts": {
-    "start": "node --env-file=./.env ./build/server/app.js",
-    "dev": "npx tsx watch --env-file=./.env ./src/server/app.ts",
-    "build": "npx rimraf ./build & npx tsc",
+    "start": "node ./build/server/app.js",
+    "dev": "npx tsx ./src/server/app.ts",
+    "build": "npx rimraf ./build && npx tsc",
     "check": "npx tsc --noEmit",
-    "test": "npm run build & npx tsx --env-file=./.env ./node_modules/mocha/bin/mocha --exit ./tests/main.ts"
+    "test": "npm run build && npx tsx ./node_modules/mocha/bin/mocha --exit ./tests/main.ts"
   },
   "type": "module",
   "keywords": [],
