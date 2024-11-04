@@ -42,12 +42,16 @@ export const getTodos: ValidatedHandler = [
     const pageAsNumber = parseInt(page);
     const limitAsNumber = parseInt(limit);
 
-    const todos = await selection
-      .skip((pageAsNumber - 1) * limitAsNumber)
-      .limit(limitAsNumber)
-      .lean()
-      .exec();
+    // Ignore { page } and { limit } for now to count the total number of pages.
+    // This is faster than calling .countDocuments().
+    const unslicedTodos = await selection.lean().exec();
+    const totalPages = Math.ceil(unslicedTodos.length / limitAsNumber);
 
+    const startIndex = (pageAsNumber - 1) * limitAsNumber;
+    const endIndex = startIndex + limitAsNumber;
+
+    // Get the requested part of the list.
+    const todos = unslicedTodos.slice(startIndex, endIndex);
     const total = todos.length;
 
     if (!total) {
@@ -61,9 +65,7 @@ export const getTodos: ValidatedHandler = [
       page: pageAsNumber,
       limit: limitAsNumber,
       total,
-      totalPages: Math.ceil(
-        (await Todo.countDocuments({ user: req.user }).exec()) / limitAsNumber
-      ),
+      totalPages,
     });
   },
 ];
