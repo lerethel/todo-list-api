@@ -2,6 +2,7 @@ import type { ErrorRequestHandler } from "express";
 
 import cookieParser from "cookie-parser";
 import express from "express";
+import { rateLimit } from "express-rate-limit";
 import mongoose from "mongoose";
 import todoRouter from "./routes/todo.js";
 import userRouter from "./routes/user.js";
@@ -18,6 +19,16 @@ const port = process.env.PORT || 3000;
 const app = express();
 mongoose.connect(process.env.MONGODB_URI);
 
+app.use(
+  rateLimit({
+    windowMs: 10 * 60 * 1000,
+    limit: 30,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    handler: (req, res, next, { statusCode, message }) =>
+      res.status(statusCode).json([{ message }]),
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(userRouter);
