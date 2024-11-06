@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI);
 app.use(
   rateLimit({
     windowMs: 10 * 60 * 1000,
-    limit: 30,
+    limit: process.env.NODE_ENV !== "test" ? 30 : 500,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     handler: (req, res, next, { statusCode, message }) =>
