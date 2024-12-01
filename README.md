@@ -20,7 +20,7 @@ Only success status codes are described below. Other status codes are possible i
 
 ## Users
 
-`POST /users/register`
+`POST /users/signup`
 
 - Creates a user account
 - Requires the following JSON object: `{ name, email, password }`

@@ -3,7 +3,7 @@ import * as userController from "../controllers/user.js";
 
 const router = express.Router();
 
-router.post("/users/register", userController.registerUser);
+router.post("/users/signup", userController.signupUser);
 router.post("/users/login", userController.loginUser);
 router.get("/users/refresh", userController.refreshUser);
 router.post("/users/logout", userController.logoutUser);

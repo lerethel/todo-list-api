@@ -7,9 +7,9 @@ import * as pwd from "../utils/password.js";
 import * as token from "../utils/token.js";
 import * as validate from "../utils/validate.js";
 
-export const registerUser: ValidatedHandler = [
+export const signupUser: ValidatedHandler = [
   validate.userName,
-  validate.userEmailOnRegister,
+  validate.userEmailOnSignup,
   validate.userPassword,
   validate.sendErrorsIfExist,
   async (req, res) => {

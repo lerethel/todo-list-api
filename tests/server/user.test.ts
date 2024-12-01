@@ -78,8 +78,8 @@ describe("/users: account management", () => {
   let user: string;
 
   describe("create", () => {
-    it("POST /register: expect 201, a token, and a cookie", async () => {
-      const response = await request.post("/users/register", {
+    it("POST /signup: expect 201, a token, and a cookie", async () => {
+      const response = await request.post("/users/signup", {
         data: userData,
       });
 
@@ -94,8 +94,8 @@ describe("/users: account management", () => {
       assert.ok(user);
     });
 
-    it("POST /register: expect 409", async () => {
-      const response = await request.post("/users/register", {
+    it("POST /signup: expect 409", async () => {
+      const response = await request.post("/users/signup", {
         data: userData,
       });
       assert.strictEqual(response.status, 409);

@@ -77,7 +77,7 @@ export const userName = body("name")
   .notEmpty()
   .withMessage("User name must be specified.");
 
-export const userEmailOnRegister = body("email")
+export const userEmailOnSignup = body("email")
   .trim()
   .isEmail()
   .withMessage("Valid email must be specified.")
