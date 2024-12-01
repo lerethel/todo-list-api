@@ -12,7 +12,9 @@ export const createTodo: ValidatedHandler = [
   async (req, res) => {
     const { title, description } = req.body;
     const todo = await Todo.create({ user: req.user, title, description });
-    res.status(201).json({ id: todo._id, title, description });
+    res
+      .status(201)
+      .json({ id: todo._id, title, description, timestamp: todo.timestamp });
   },
 ];
 
@@ -53,10 +55,6 @@ export const getTodos: ValidatedHandler = [
     // Get the requested part of the list.
     const todos = unslicedTodos.slice(startIndex, endIndex);
     const total = todos.length;
-
-    if (!total) {
-      return res.jsonStatus(404);
-    }
 
     res.json({
       data: todos.map(({ _id, title, description, timestamp }) => {
