@@ -1,7 +1,7 @@
 import type { ValidatedHandler } from "../types/types.js";
 
-import Todo from "../models/todo.js";
-import { verifyAccess } from "../utils/token.js";
+import Todo from "../models/todo.model.js";
+import { verifyAccess } from "../services/token.service.js";
 import * as validate from "../utils/validate.js";
 
 export const createTodo: ValidatedHandler = [

@@ -4,7 +4,7 @@ import type { IUser, RequestHandler } from "../types/types.js";
 
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
-import Token from "../models/token.js";
+import Token from "../models/token.model.js";
 
 // Both ages are in seconds.
 const accessTokenMaxAge = 300;

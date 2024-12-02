@@ -2,8 +2,8 @@ import type { RequestHandler } from "../types/types.js";
 
 import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";
-import Todo from "../models/todo.js";
-import User from "../models/user.js";
+import Todo from "../models/todo.model.js";
+import User from "../models/user.model.js";
 
 export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);

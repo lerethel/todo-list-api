@@ -1,10 +1,10 @@
 import type { RequestHandler, ValidatedHandler } from "../types/types.js";
 
-import Todo from "../models/todo.js";
-import Token from "../models/token.js";
-import User from "../models/user.js";
-import * as pwd from "../utils/password.js";
-import * as token from "../utils/token.js";
+import Todo from "../models/todo.model.js";
+import Token from "../models/token.model.js";
+import User from "../models/user.model.js";
+import * as pwd from "../services/password.service.js";
+import * as token from "../services/token.service.js";
 import * as validate from "../utils/validate.js";
 
 export const signupUser: ValidatedHandler = [

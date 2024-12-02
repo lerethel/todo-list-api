@@ -4,8 +4,8 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
 import mongoose from "mongoose";
-import todoRouter from "./routes/todo.js";
-import userRouter from "./routes/user.js";
+import todoRouter from "./routes/todo.router.js";
+import userRouter from "./routes/user.router.js";
 import statusCodes from "./utils/status-codes.js";
 
 // A replacement for res.sendStatus() that sends a JSON object in the validation
