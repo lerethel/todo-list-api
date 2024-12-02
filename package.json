@@ -1,10 +1,10 @@
 {
   "name": "todo-list-api",
   "version": "1.0.0",
-  "main": "./build/server/app.js",
+  "main": "./build/app.js",
   "scripts": {
-    "start": "node ./build/server/app.js",
-    "dev": "npx tsx ./src/server/app.ts",
+    "start": "node ./build/app.js",
+    "dev": "npx tsx ./src/app.ts",
     "build": "npx rimraf ./build && npx tsc",
     "check": "npx tsc --noEmit",
     "test": "npm run build && npx tsx ./node_modules/mocha/bin/mocha --exit ./tests/main.ts"
