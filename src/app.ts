@@ -1,9 +1,8 @@
-import type { ErrorRequestHandler } from "express";
-
 import cookieParser from "cookie-parser";
-import express from "express";
+import express, { ErrorRequestHandler } from "express";
 import { rateLimit } from "express-rate-limit";
 import mongoose from "mongoose";
+import { HttpException } from "./exceptions/http.exception.js";
 import todoRouter from "./routes/todo.router.js";
 import userRouter from "./routes/user.router.js";
 import statusCodes from "./utils/status-codes.js";
@@ -36,9 +35,13 @@ app.use(todoRouter);
 
 app.use((req, res) => res.jsonStatus(404));
 
-app.use(<ErrorRequestHandler>((err: Error, req, res, next) => {
+app.use(((err: Error | HttpException, req, res, next) => {
+  if (err instanceof HttpException) {
+    return res.jsonStatus(err.status);
+  }
+
   console.error(err.stack);
   res.jsonStatus(500);
-}));
+}) as ErrorRequestHandler);
 
 app.listen(port, () => console.log(`Server is listening on port ${port}`));

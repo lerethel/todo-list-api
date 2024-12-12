@@ -1,17 +1,18 @@
-import express from "express";
-import * as userController from "../controllers/user.controller.js";
+import { Router } from "express";
+import authController from "../controllers/auth.controller.js";
+import userController from "../controllers/user.controller.js";
 
-const router = express.Router();
+const userRouter = Router();
 
-router.post("/users/signup", userController.signupUser);
-router.post("/users/login", userController.loginUser);
-router.get("/users/refresh", userController.refreshUser);
-router.post("/users/logout", userController.logoutUser);
+userRouter.post("/users/login", authController.login);
+userRouter.get("/users/refresh", authController.refresh);
+userRouter.post("/users/logout", authController.logout);
 
-router.get("/users/me/", userController.getUser);
-router.put("/users/me/name", userController.updateUserName);
-router.put("/users/me/email", userController.updateUserEmail);
-router.put("/users/me/password", userController.updateUserPassword);
-router.post("/users/me/delete", userController.deleteUser);
+userRouter.post("/users/signup", userController.create);
+userRouter.get("/users/me/", userController.find);
+userRouter.put("/users/me/name", userController.updateName);
+userRouter.put("/users/me/email", userController.updateEmail);
+userRouter.put("/users/me/password", userController.updatePassword);
+userRouter.post("/users/me/delete", userController.delete);
 
-export default router;
+export default userRouter;

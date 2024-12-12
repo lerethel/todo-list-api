@@ -1,154 +1,69 @@
-import type { RequestHandler, ValidatedHandler } from "../types/types.js";
-
-import Todo from "../models/todo.model.js";
-import Token from "../models/token.model.js";
-import User from "../models/user.model.js";
-import * as pwd from "../services/password.service.js";
-import * as token from "../services/token.service.js";
+import { RequestHandler } from "express";
+import { verifyAccess } from "../middleware/verify-access.middleware.js";
+import userService from "../services/user.service.js";
+import { ValidatedHandler } from "../types/types.js";
 import * as validate from "../utils/validate.js";
 
-export const signupUser: ValidatedHandler = [
-  validate.userName,
-  validate.userEmailOnSignup,
-  validate.userPassword,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const { name, email, password } = req.body;
-    const createdUser = await User.create({
-      name,
-      email,
-      password: await pwd.hash(password),
-    });
+class UserController {
+  create: ValidatedHandler = [
+    validate.userName,
+    validate.userEmailOnSignup,
+    validate.userPassword,
+    validate.sendErrorsIfExist,
+    async ({ body }, res) => {
+      await userService.create(body);
+      res.jsonStatus(201);
+    },
+  ];
 
-    token.send(res, 201, createdUser);
-  },
-];
+  find: [RequestHandler, RequestHandler] = [
+    verifyAccess,
+    async ({ user }, res) => {
+      res.status(200).json(await userService.find(user!));
+    },
+  ];
 
-export const loginUser: ValidatedHandler = [
-  validate.userEmailOnLogin,
-  validate.userPassword,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const { email, password } = req.body;
-    const foundUser = await User.findOne({ email }).lean().exec();
+  updateName: ValidatedHandler = [
+    verifyAccess,
+    validate.userName,
+    validate.sendErrorsIfExist,
+    async ({ user, body }, res) => {
+      await userService.updateName(user!, body);
+      res.jsonStatus(200);
+    },
+  ];
 
-    if (!foundUser || !(await pwd.compare(foundUser.password, password))) {
-      return res.jsonStatus(401);
-    }
+  updateEmail: ValidatedHandler = [
+    verifyAccess,
+    validate.userEmailOnUpdate,
+    validate.userPassword,
+    validate.sendErrorsIfExist,
+    async ({ user, body }, res) => {
+      await userService.updateEmail(user!, body);
+      res.jsonStatus(200);
+    },
+  ];
 
-    token.send(res, 200, foundUser);
-  },
-];
+  updatePassword: ValidatedHandler = [
+    verifyAccess,
+    validate.userPasswordOnUpdate,
+    validate.userNewPassword,
+    validate.sendErrorsIfExist,
+    async ({ user, body }, res) => {
+      await userService.updatePassword(user!, body);
+      res.jsonStatus(200);
+    },
+  ];
 
-export const refreshUser = token.verifyRefresh;
+  delete: ValidatedHandler = [
+    verifyAccess,
+    validate.userPassword,
+    validate.sendErrorsIfExist,
+    async ({ user, body }, res) => {
+      await userService.delete(user!, body);
+      res.jsonStatus(204);
+    },
+  ];
+}
 
-export const logoutUser = token.revoke;
-
-export const getUser: [RequestHandler, RequestHandler] = [
-  token.verifyAccess,
-  async (req, res) => {
-    const foundUser = await User.findById(req.user, "name email").lean().exec();
-
-    if (!foundUser) {
-      return res.jsonStatus(404);
-    }
-
-    const { name, email } = foundUser;
-    res.status(200).json({ name, email });
-  },
-];
-
-export const updateUserName: ValidatedHandler = [
-  token.verifyAccess,
-  validate.userName,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const foundUser = await User.findById(req.user, "name").exec();
-
-    if (!foundUser) {
-      return res.jsonStatus(404);
-    }
-
-    foundUser.name = req.body.name;
-    foundUser.save();
-
-    res.jsonStatus(200);
-  },
-];
-
-export const updateUserEmail: ValidatedHandler = [
-  token.verifyAccess,
-  validate.userEmailOnUpdate,
-  validate.userPassword,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const foundUser = await User.findById(req.user, "email password").exec();
-
-    if (!foundUser) {
-      return res.jsonStatus(404);
-    }
-
-    const { email, password } = req.body;
-
-    if (!(await pwd.compare(foundUser.password, password))) {
-      return res.jsonStatus(400);
-    }
-
-    foundUser.email = email;
-    foundUser.save();
-
-    res.jsonStatus(200);
-  },
-];
-
-export const updateUserPassword: ValidatedHandler = [
-  token.verifyAccess,
-  validate.userPasswordOnUpdate,
-  validate.userNewPassword,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const foundUser = await User.findById(req.user, "password").exec();
-
-    if (!foundUser) {
-      return res.jsonStatus(404);
-    }
-
-    const { password, "new-password": newPassword } = req.body;
-
-    if (!(await pwd.compare(foundUser.password, password))) {
-      return res.jsonStatus(400);
-    }
-
-    foundUser.password = await pwd.hash(newPassword);
-    foundUser.save();
-
-    res.jsonStatus(200);
-  },
-];
-
-export const deleteUser: ValidatedHandler = [
-  token.verifyAccess,
-  validate.userPassword,
-  validate.sendErrorsIfExist,
-  async (req, res, next) => {
-    const { user } = req;
-    const foundUser = await User.findById(user, "password").lean().exec();
-
-    if (!foundUser) {
-      return res.jsonStatus(404);
-    }
-
-    if (!(await pwd.compare(foundUser.password, req.body.password))) {
-      return res.jsonStatus(400);
-    }
-
-    // Delete the user and all their data.
-    await Promise.all([
-      User.deleteOne({ _id: user }).exec(),
-      Todo.deleteMany({ user }).exec(),
-      Token.deleteMany({ user }).exec(),
-    ]);
-
-    token.revoke(req, res, next);
-  },
-];
+export default new UserController();

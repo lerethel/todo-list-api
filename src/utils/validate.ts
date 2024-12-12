@@ -1,5 +1,4 @@
-import type { RequestHandler } from "../types/types.js";
-
+import { RequestHandler } from "express";
 import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";
 import Todo from "../models/todo.model.js";
@@ -12,7 +11,7 @@ export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
     // Send only the messages.
     return res
       .status(req.validationErrorStatus ?? 400)
-      .json(errors.array().map(({ msg }) => ({ message: msg })));
+      .json(errors.array().map(({ msg: message }) => ({ message })));
   }
 
   next();

@@ -1,6 +1,5 @@
-import type { ITodo } from "../types/types.js";
-
 import mongoose from "mongoose";
+import { ITodo } from "../types/types.js";
 
 const TodoSchema = new mongoose.Schema<ITodo>({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

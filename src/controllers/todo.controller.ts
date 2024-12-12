@@ -1,96 +1,54 @@
-import type { ValidatedHandler } from "../types/types.js";
-
-import Todo from "../models/todo.model.js";
-import { verifyAccess } from "../services/token.service.js";
+import { FindTodoDto } from "../dto/todo.dto.js";
+import { verifyAccess } from "../middleware/verify-access.middleware.js";
+import todoService from "../services/todo.service.js";
+import { ValidatedHandler } from "../types/types.js";
 import * as validate from "../utils/validate.js";
 
-export const createTodo: ValidatedHandler = [
-  verifyAccess,
-  validate.todoTitle,
-  validate.todoDescription,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const { title, description } = req.body;
-    const todo = await Todo.create({ user: req.user, title, description });
-    res
-      .status(201)
-      .json({ id: todo._id, title, description, timestamp: todo.timestamp });
-  },
-];
+class TodoController {
+  create: ValidatedHandler = [
+    verifyAccess,
+    validate.todoTitle,
+    validate.todoDescription,
+    validate.sendErrorsIfExist,
+    async ({ user, body }, res) => {
+      res.status(201).json(await todoService.create(user!, body));
+    },
+  ];
 
-export const getTodos: ValidatedHandler = [
-  verifyAccess,
-  validate.todoPageQuery,
-  validate.todoLimitQuery,
-  validate.todoSortQuery,
-  validate.todoDateQuery,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const { page, limit, date, sort } = req.query as Record<string, string>;
-    const selection = Todo.find({ user: req.user });
+  find: ValidatedHandler = [
+    verifyAccess,
+    validate.todoPageQuery,
+    validate.todoLimitQuery,
+    validate.todoSortQuery,
+    validate.todoDateQuery,
+    validate.sendErrorsIfExist,
+    async ({ user, query }, res) => {
+      res.json(
+        await todoService.find(user!, query as unknown as FindTodoDto)
+      );
+    },
+  ];
 
-    if (date) {
-      const [startDate, stopDate] = date.split(":");
-      selection.gte("timestamp", Date.parse(startDate));
-      if (stopDate) {
-        selection.lte("timestamp", Date.parse(stopDate));
-      }
-    }
+  update: ValidatedHandler = [
+    verifyAccess,
+    validate.todoTitle,
+    validate.todoDescription,
+    validate.todoIdParam,
+    validate.sendErrorsIfExist,
+    async ({ user, params: { id }, body }, res) => {
+      res.status(200).json(await todoService.update(user!, id, body));
+    },
+  ];
 
-    if (sort) {
-      selection.sort(sort);
-    }
+  delete: ValidatedHandler = [
+    verifyAccess,
+    validate.todoIdParam,
+    validate.sendErrorsIfExist,
+    async ({ user, params: { id } }, res) => {
+      await todoService.delete(user!, id);
+      res.jsonStatus(204);
+    },
+  ];
+}
 
-    const pageAsNumber = parseInt(page);
-    const limitAsNumber = parseInt(limit);
-
-    // Ignore { page } and { limit } for now to count the total number of pages.
-    // This is faster than calling .countDocuments().
-    const unslicedTodos = await selection.lean().exec();
-    const totalPages = Math.ceil(unslicedTodos.length / limitAsNumber);
-
-    const startIndex = (pageAsNumber - 1) * limitAsNumber;
-    const endIndex = startIndex + limitAsNumber;
-
-    // Get the requested part of the list.
-    const todos = unslicedTodos.slice(startIndex, endIndex);
-    const total = todos.length;
-
-    res.json({
-      data: todos.map(({ _id, title, description, timestamp }) => {
-        return { id: _id, title, description, timestamp };
-      }),
-      page: pageAsNumber,
-      limit: limitAsNumber,
-      total,
-      totalPages,
-    });
-  },
-];
-
-export const updateTodo: ValidatedHandler = [
-  verifyAccess,
-  validate.todoTitle,
-  validate.todoDescription,
-  validate.todoIdParam,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    const { title, description } = req.body;
-    await Todo.updateOne(
-      { user: req.user, _id: req.params.id },
-      { title, description }
-    ).exec();
-
-    res.status(200).json({ id: req.params.id, title, description });
-  },
-];
-
-export const deleteTodo: ValidatedHandler = [
-  verifyAccess,
-  validate.todoIdParam,
-  validate.sendErrorsIfExist,
-  async (req, res) => {
-    await Todo.deleteOne({ user: req.user, _id: req.params.id }).exec();
-    res.jsonStatus(204);
-  },
-];
+export default new TodoController();

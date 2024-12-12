@@ -1,6 +1,6 @@
-import type express from "express";
-import type validator from "express-validator";
-import type mongoose from "mongoose";
+import { RequestHandler } from "express";
+import { ValidationChain } from "express-validator";
+import { Types } from "mongoose";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -19,31 +19,24 @@ export interface IUser {
 }
 
 export interface IToken {
-  user: mongoose.Types.ObjectId;
+  user: Types.ObjectId;
   family: string;
   refreshToken: string;
 }
 
 export interface ITodo {
-  user: mongoose.Types.ObjectId;
+  user: Types.ObjectId;
   title: string;
   description: string;
   timestamp: number;
 }
 
-export type RequestHandler = express.RequestHandler;
-
 export type ValidatedHandler =
-  | [
-      validator.ValidationChain,
-      ...validator.ValidationChain[],
-      RequestHandler,
-      RequestHandler
-    ]
+  | [ValidationChain, ...ValidationChain[], RequestHandler, RequestHandler]
   | [
       RequestHandler,
-      validator.ValidationChain,
-      ...validator.ValidationChain[],
+      ValidationChain,
+      ...ValidationChain[],
       RequestHandler,
       RequestHandler
     ];

@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { authData, getJWTFromCookies, request } from "./helpers/common.js";
@@ -78,27 +78,30 @@ describe("/users: account management", () => {
   let user: string;
 
   describe("create", () => {
-    it("POST /signup: expect 201, a token, and a cookie", async () => {
-      const response = await request.post("/users/signup", {
-        data: userData,
-      });
-
+    it("POST /signup: expect 201", async () => {
+      const response = await request.post("/users/signup", { data: userData });
       assert.strictEqual(response.status, 201);
+    });
+
+    it("POST /signup: expect 409", async () => {
+      const response = await request.post("/users/signup", { data: userData });
+      assert.strictEqual(response.status, 409);
+    });
+  });
+
+  describe("new user login", () => {
+    it("POST /login: expect 200, a token, and a cookie", async () => {
+      const response = await request.post("/users/login", { data: userData });
+
+      assert.strictEqual(response.status, 200);
 
       accessToken = (await response.json()).token;
       refreshToken = getJWTFromCookies(response);
-      user = (jwt.decode(accessToken) as jwt.JwtPayload).user;
+      user = (jwt.decode(accessToken) as JwtPayload).user;
 
       assert.ok(accessToken);
       assert.ok(refreshToken);
       assert.ok(user);
-    });
-
-    it("POST /signup: expect 409", async () => {
-      const response = await request.post("/users/signup", {
-        data: userData,
-      });
-      assert.strictEqual(response.status, 409);
     });
   });
 
