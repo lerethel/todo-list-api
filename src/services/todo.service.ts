@@ -9,7 +9,7 @@ class TodoService {
     return { id: todo._id, title, description, timestamp: todo.timestamp };
   }
 
-  async find({ page, limit, date, sort }: FindTodoDto) {
+  async find({ page, limit, date, sort = "-timestamp" }: FindTodoDto) {
     const user = userStore.get();
     const selection = Todo.find({ user });
 
@@ -21,9 +21,7 @@ class TodoService {
       }
     }
 
-    if (sort) {
-      selection.sort(sort);
-    }
+    selection.sort(sort);
 
     // Ignore { page } and { limit } for now to count the total number of pages.
     // This is faster than calling .countDocuments().
