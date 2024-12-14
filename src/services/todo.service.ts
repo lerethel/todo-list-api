@@ -22,16 +22,13 @@ class TodoService {
       selection.sort(sort);
     }
 
-    const pageAsNumber = +page;
-    const limitAsNumber = +limit;
-
     // Ignore { page } and { limit } for now to count the total number of pages.
     // This is faster than calling .countDocuments().
     const unslicedTodos = await selection.lean().exec();
-    const totalPages = Math.ceil(unslicedTodos.length / limitAsNumber);
+    const totalPages = Math.ceil(unslicedTodos.length / limit);
 
-    const startIndex = (pageAsNumber - 1) * limitAsNumber;
-    const endIndex = startIndex + limitAsNumber;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
 
     // Get the requested part of the list.
     const todos = unslicedTodos.slice(startIndex, endIndex);
@@ -44,8 +41,8 @@ class TodoService {
         description,
         timestamp,
       })),
-      page: pageAsNumber,
-      limit: limitAsNumber,
+      page,
+      limit,
       total,
       totalPages,
     };

@@ -1,4 +1,3 @@
-import { FindTodoDto } from "../dto/todo.dto.js";
 import { verifyAccess } from "../middleware/verify-access.middleware.js";
 import todoService from "../services/todo.service.js";
 import { ValidatedHandler } from "../types/types.js";
@@ -24,7 +23,11 @@ class TodoController {
     validate.sendErrorsIfExist,
     async ({ user, query }, res) => {
       res.json(
-        await todoService.find(user!, query as unknown as FindTodoDto)
+        await todoService.find(user!, {
+          ...query,
+          page: +query.page!,
+          limit: +query.limit!,
+        })
       );
     },
   ];

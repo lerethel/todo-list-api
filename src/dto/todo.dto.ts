@@ -4,8 +4,8 @@ export interface CreateTodoDto {
 }
 
 export interface FindTodoDto {
-  page: string;
-  limit: string;
+  page: number;
+  limit: number;
   date?: string;
   sort?: string;
 }
