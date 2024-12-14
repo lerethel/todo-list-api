@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { HttpException } from "../exceptions/http.exception.js";
+import userStore from "../stores/user.store.js";
 
 export const verifyAccess: RequestHandler = (req, res, next) => {
   const { authorization } = req.headers;
@@ -12,9 +13,9 @@ export const verifyAccess: RequestHandler = (req, res, next) => {
   const token = authorization.split(" ")[1];
 
   try {
-    req.user = (
-      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) as JwtPayload
-    ).user;
+    userStore.set(
+      (jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) as JwtPayload).user
+    );
   } catch {
     throw new HttpException(403);
   }

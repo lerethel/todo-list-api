@@ -18,8 +18,8 @@ class UserController {
 
   find: [RequestHandler, RequestHandler] = [
     verifyAccess,
-    async ({ user }, res) => {
-      res.status(200).json(await userService.find(user!));
+    async (req, res) => {
+      res.status(200).json(await userService.find());
     },
   ];
 
@@ -27,8 +27,8 @@ class UserController {
     verifyAccess,
     validate.userName,
     validate.sendErrorsIfExist,
-    async ({ user, body }, res) => {
-      await userService.updateName(user!, body);
+    async ({ body }, res) => {
+      await userService.updateName(body);
       res.jsonStatus(200);
     },
   ];
@@ -38,8 +38,8 @@ class UserController {
     validate.userEmailOnUpdate,
     validate.userPassword,
     validate.sendErrorsIfExist,
-    async ({ user, body }, res) => {
-      await userService.updateEmail(user!, body);
+    async ({ body }, res) => {
+      await userService.updateEmail(body);
       res.jsonStatus(200);
     },
   ];
@@ -49,8 +49,8 @@ class UserController {
     validate.userPasswordOnUpdate,
     validate.userNewPassword,
     validate.sendErrorsIfExist,
-    async ({ user, body }, res) => {
-      await userService.updatePassword(user!, body);
+    async ({ body }, res) => {
+      await userService.updatePassword(body);
       res.jsonStatus(200);
     },
   ];
@@ -59,8 +59,8 @@ class UserController {
     verifyAccess,
     validate.userPassword,
     validate.sendErrorsIfExist,
-    async ({ user, body }, res) => {
-      await userService.delete(user!, body);
+    async ({ body }, res) => {
+      await userService.delete(body);
       res.jsonStatus(204);
     },
   ];

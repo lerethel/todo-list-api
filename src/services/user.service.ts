@@ -10,6 +10,7 @@ import Todo from "../models/todo.model.js";
 import Token from "../models/token.model.js";
 import User from "../models/user.model.js";
 import passwordService from "../services/password.service.js";
+import userStore from "../stores/user.store.js";
 
 class UserService {
   async create({ name, email, password }: CreateUserDto) {
@@ -20,7 +21,8 @@ class UserService {
     });
   }
 
-  async find(user: string) {
+  async find() {
+    const user = userStore.get();
     const foundUser = await User.findById(user, "name email").lean().exec();
 
     if (!foundUser) {
@@ -30,7 +32,8 @@ class UserService {
     return { name: foundUser.name, email: foundUser.email };
   }
 
-  async updateName(user: string, { name }: UpdateUserNameDto) {
+  async updateName({ name }: UpdateUserNameDto) {
+    const user = userStore.get();
     const foundUser = await User.findById(user, "name").exec();
 
     if (!foundUser) {
@@ -41,7 +44,8 @@ class UserService {
     await foundUser.save();
   }
 
-  async updateEmail(user: string, { email, password }: UpdateUserEmailDto) {
+  async updateEmail({ email, password }: UpdateUserEmailDto) {
+    const user = userStore.get();
     const foundUser = await User.findById(user, "email password").exec();
 
     if (!foundUser) {
@@ -56,10 +60,11 @@ class UserService {
     await foundUser.save();
   }
 
-  async updatePassword(
-    user: string,
-    { password, "new-password": newPassword }: UpdateUserPasswordDto
-  ) {
+  async updatePassword({
+    password,
+    "new-password": newPassword,
+  }: UpdateUserPasswordDto) {
+    const user = userStore.get();
     const foundUser = await User.findById(user, "password").exec();
 
     if (!foundUser) {
@@ -74,7 +79,8 @@ class UserService {
     await foundUser.save();
   }
 
-  async delete(user: string, { password }: DeleteUserDto) {
+  async delete({ password }: DeleteUserDto) {
+    const user = userStore.get();
     const foundUser = await User.findById(user, "password").lean().exec();
 
     if (!foundUser) {

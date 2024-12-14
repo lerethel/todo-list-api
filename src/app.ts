@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { HttpException } from "./exceptions/http.exception.js";
 import todoRouter from "./routes/todo.router.js";
 import userRouter from "./routes/user.router.js";
+import userStore from "./stores/user.store.js";
 import statusCodes from "./utils/status-codes.js";
 
 // A replacement for res.sendStatus() that sends a JSON object in the validation
@@ -28,6 +29,7 @@ app.use(
       res.status(statusCode).json([{ message }]),
   })
 );
+app.use((req, res, next) => userStore.init(next));
 app.use(express.json());
 app.use(cookieParser());
 app.use(userRouter);

@@ -3,6 +3,7 @@ import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";
 import Todo from "../models/todo.model.js";
 import User from "../models/user.model.js";
+import userStore from "../stores/user.store.js";
 
 export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);
@@ -30,7 +31,9 @@ export const todoIdParam = param("id")
   .withMessage("Valid to-do id must be specified.")
   .bail()
   .custom(async (id, { req }) => {
-    if (await Todo.exists({ user: req.user, _id: id }).exec()) {
+    const user = userStore.get();
+
+    if (await Todo.exists({ user, _id: id }).exec()) {
       return Promise.resolve();
     }
 
@@ -107,7 +110,7 @@ export const userEmailOnUpdate = body("email")
   .custom(async (email, { req }) => {
     const user = await User.exists({ email }).exec();
 
-    if (!user || user._id.toString() === req.user) {
+    if (!user || user._id.toString() === userStore.get()) {
       return Promise.resolve();
     }
 

@@ -9,8 +9,8 @@ class TodoController {
     validate.todoTitle,
     validate.todoDescription,
     validate.sendErrorsIfExist,
-    async ({ user, body }, res) => {
-      res.status(201).json(await todoService.create(user!, body));
+    async ({ body }, res) => {
+      res.status(201).json(await todoService.create(body));
     },
   ];
 
@@ -21,9 +21,9 @@ class TodoController {
     validate.todoSortQuery,
     validate.todoDateQuery,
     validate.sendErrorsIfExist,
-    async ({ user, query }, res) => {
+    async ({ query }, res) => {
       res.json(
-        await todoService.find(user!, {
+        await todoService.find({
           ...query,
           page: +query.page!,
           limit: +query.limit!,
@@ -38,8 +38,8 @@ class TodoController {
     validate.todoDescription,
     validate.todoIdParam,
     validate.sendErrorsIfExist,
-    async ({ user, params: { id }, body }, res) => {
-      res.status(200).json(await todoService.update(user!, id, body));
+    async ({ params: { id }, body }, res) => {
+      res.status(200).json(await todoService.update(id, body));
     },
   ];
 
@@ -47,8 +47,8 @@ class TodoController {
     verifyAccess,
     validate.todoIdParam,
     validate.sendErrorsIfExist,
-    async ({ user, params: { id } }, res) => {
-      await todoService.delete(user!, id);
+    async ({ params: { id } }, res) => {
+      await todoService.delete(id);
       res.jsonStatus(204);
     },
   ];

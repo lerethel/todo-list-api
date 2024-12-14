@@ -1,13 +1,16 @@
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
 import Todo from "../models/todo.model.js";
+import userStore from "../stores/user.store.js";
 
 class TodoService {
-  async create(user: string, { title, description }: CreateTodoDto) {
+  async create({ title, description }: CreateTodoDto) {
+    const user = userStore.get();
     const todo = await Todo.create({ user, title, description });
     return { id: todo._id, title, description, timestamp: todo.timestamp };
   }
 
-  async find(user: string, { page, limit, date, sort }: FindTodoDto) {
+  async find({ page, limit, date, sort }: FindTodoDto) {
+    const user = userStore.get();
     const selection = Todo.find({ user });
 
     if (date) {
@@ -48,16 +51,14 @@ class TodoService {
     };
   }
 
-  async update(
-    user: string,
-    id: string,
-    { title, description }: CreateTodoDto
-  ) {
+  async update(id: string, { title, description }: CreateTodoDto) {
+    const user = userStore.get();
     await Todo.updateOne({ user, _id: id }, { title, description }).exec();
     return { id, title, description };
   }
 
-  async delete(user: string, id: string) {
+  async delete(id: string) {
+    const user = userStore.get();
     await Todo.deleteOne({ user, _id: id }).exec();
   }
 }

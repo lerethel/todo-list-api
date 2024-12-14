@@ -4,12 +4,15 @@ import { Types } from "mongoose";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: string;
     validationErrorStatus?: number;
   }
   interface Response {
     jsonStatus: (code: number) => Response;
   }
+}
+
+export interface AsyncUserStorage {
+  user: string;
 }
 
 export interface IUser {
