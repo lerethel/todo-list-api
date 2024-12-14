@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler } from "express";
 import { rateLimit } from "express-rate-limit";
 import mongoose from "mongoose";
+import config from "./config/config.js";
 import { HttpException } from "./exceptions/http.exception.js";
 import todoRouter from "./routes/todo.router.js";
 import userRouter from "./routes/user.router.js";
@@ -14,15 +15,13 @@ express.response.jsonStatus = function (code) {
   return this.status(code).json([{ message: statusCodes[code] ?? "" }]);
 };
 
-const port = process.env.PORT || 3000;
-
 const app = express();
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(config.MONGODB_URI);
 
 app.use(
   rateLimit({
     windowMs: 10 * 60 * 1000,
-    limit: process.env.NODE_ENV === "production" ? 30 : 500,
+    limit: config.ENV === "production" ? 30 : 500,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     handler: (req, res, next, { statusCode, message }) =>
@@ -46,4 +45,6 @@ app.use(((err: Error | HttpException, req, res, next) => {
   res.jsonStatus(500);
 }) as ErrorRequestHandler);
 
-app.listen(port, () => console.log(`Server is listening on port ${port}`));
+app.listen(config.PORT, () =>
+  console.log(`Server is listening on port ${config.PORT}`)
+);

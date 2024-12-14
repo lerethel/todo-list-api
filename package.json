@@ -16,6 +16,7 @@
   "description": "",
   "dependencies": {
     "cookie-parser": "^1.4.7",
+    "env-var": "^7.5.0",
     "express": "^5.0.1",
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",

@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../config/config.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import Token from "../models/token.model.js";
 
@@ -11,13 +12,13 @@ class TokenService {
   } as const;
 
   private createAccess(user: string) {
-    return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+    return jwt.sign({ user }, config.ACCESS_TOKEN_SECRET, {
       expiresIn: this.config.accessTokenMaxAge,
     });
   }
 
   private createRefresh(user: string, family: string) {
-    return jwt.sign({ user, family }, process.env.REFRESH_TOKEN_SECRET, {
+    return jwt.sign({ user, family }, config.REFRESH_TOKEN_SECRET, {
       expiresIn: this.config.refreshTokenMaxAge,
     });
   }
@@ -41,7 +42,7 @@ class TokenService {
     try {
       payload = jwt.verify(
         refreshToken,
-        process.env.REFRESH_TOKEN_SECRET
+        config.REFRESH_TOKEN_SECRET
       ) as JwtPayload;
     } catch {
       throw new HttpException(403);

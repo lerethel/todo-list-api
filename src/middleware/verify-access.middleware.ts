@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../config/config.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import userStore from "../stores/user.store.js";
 
@@ -14,7 +15,7 @@ export const verifyAccess: RequestHandler = (req, res, next) => {
 
   try {
     userStore.set(
-      (jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) as JwtPayload).user
+      (jwt.verify(token, config.ACCESS_TOKEN_SECRET) as JwtPayload).user
     );
   } catch {
     throw new HttpException(403);
