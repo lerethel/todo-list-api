@@ -60,12 +60,11 @@ export const todoDateQuery = query("date")
   .withMessage("Valid date must be specified.");
 
 // sort=field -> ascending order; sort=-field -> descending order
-// Multiple fields are allowed and must be separated by a whitespace, e.g., "title -timestamp".
-const sortQueryAllowedFields = new Set(["title", "timestamp", "description"]);
+// Multiple fields are allowed and must be separated by a whitespace, e.g., "title -createdAt".
+const sortQueryAllowedFields = new Set(["title", "createdAt", "description"]);
 export const todoSortQuery = query("sort")
   .optional()
   .trim()
-  .toLowerCase()
   .custom((value) =>
     value
       .replace("-", "")

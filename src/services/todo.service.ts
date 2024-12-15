@@ -6,18 +6,18 @@ class TodoService {
   async create({ title, description }: CreateTodoDto) {
     const user = userStore.get();
     const todo = await Todo.create({ user, title, description });
-    return { id: todo._id, title, description, timestamp: todo.timestamp };
+    return { id: todo._id, title, description, createdAt: todo.createdAt };
   }
 
-  async find({ page, limit, date, sort = "-timestamp" }: FindTodoDto) {
+  async find({ page, limit, date, sort = "-createdAt" }: FindTodoDto) {
     const user = userStore.get();
     const selection = Todo.find({ user });
 
     if (date) {
       const [from, to] = date.split(":");
-      selection.gte("timestamp", Date.parse(from));
+      selection.gte("createdAt", new Date(from));
       if (to) {
-        selection.lte("timestamp", Date.parse(to));
+        selection.lte("createdAt", new Date(to));
       }
     }
 
@@ -36,11 +36,11 @@ class TodoService {
     const total = todos.length;
 
     return {
-      data: todos.map(({ _id, title, description, timestamp }) => ({
+      data: todos.map(({ _id, title, description, createdAt }) => ({
         id: _id,
         title,
         description,
-        timestamp,
+        createdAt,
       })),
       page,
       limit,

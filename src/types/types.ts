@@ -31,7 +31,7 @@ export interface ITodo {
   user: Types.ObjectId;
   title: string;
   description: string;
-  timestamp: number;
+  createdAt: Date;
 }
 
 export type ValidatedHandler =

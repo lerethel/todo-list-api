@@ -22,7 +22,7 @@ describe("/todos: authed", () => {
 
   it("GET, expect 200 and the id created by POST", async () => {
     const response = await request.get(
-      "/todos?page=1&limit=1&sort=-timestamp",
+      "/todos?page=1&limit=1&sort=-createdAt",
       { accessToken }
     );
 
@@ -108,7 +108,7 @@ describe("/todos: unauthed", () => {
   });
 
   it("GET, expect 401", async () => {
-    const response = await request.get("/todos?page=1&limit=1&sort=-timestamp");
+    const response = await request.get("/todos?page=1&limit=1&sort=-createdAt");
     assert.strictEqual(response.status, 401);
   });
 
@@ -140,7 +140,7 @@ describe("/todos: invalid token", () => {
 
   it("GET, expect 403", async () => {
     const response = await request.get(
-      "/todos?page=1&limit=1&sort=-timestamp",
+      "/todos?page=1&limit=1&sort=-createdAt",
       { accessToken }
     );
 

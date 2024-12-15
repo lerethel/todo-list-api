@@ -86,7 +86,7 @@ All the to-do routes require a user to be logged in.
 - Accepts the following query parameters:
   - `limit`: the number of to-dos per page, a **required** parameter
   - `page`: the page number, a **required** parameter
-  - `sort`: the accepted values to sort by are "title," "timestamp," and/or "description," separated by a whitespace. The default order is ascending; put a minus sign before a value to sort the list in descending order. For example, `sort=timestamp -title` will sort the list first by `timestamp` in ascending order and then by `title` in descending order
+  - `sort`: the accepted values to sort by are "title," "createdAt," and/or "description," separated by a whitespace. The default order is ascending; put a minus sign before a value to sort the list in descending order. For example, `sort=createdAt -title` will sort the list first by `createdAt` in ascending order and then by `title` in descending order
   - `filter`: accepts a date in the format "yyyy-mm-dd" to get records after this date or "yyyy-mm-dd:yyyy-mm-dd" to get records between the dates
 
 `PUT /todos/:id`
