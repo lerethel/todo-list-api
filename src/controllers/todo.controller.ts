@@ -1,6 +1,6 @@
 import { verifyAccess } from "../middleware/verify-access.middleware.js";
 import todoService from "../services/todo.service.js";
-import { ValidatedHandler } from "../types/types.js";
+import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
 class TodoController {

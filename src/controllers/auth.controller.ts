@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import authService from "../services/auth.service.js";
-import { ValidatedHandler } from "../types/types.js";
+import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
 class AuthController {

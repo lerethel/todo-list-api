@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks";
-import { AsyncUserStorage } from "../types/types.js";
+import { AsyncUserStorage } from "../types/common.types.js";
 
 class UserStore {
   private readonly store = new AsyncLocalStorage<AsyncUserStorage>();

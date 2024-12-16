@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { verifyAccess } from "../middleware/verify-access.middleware.js";
 import userService from "../services/user.service.js";
-import { ValidatedHandler } from "../types/types.js";
+import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
 class UserController {

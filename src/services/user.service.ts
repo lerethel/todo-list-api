@@ -6,15 +6,22 @@ import {
   UpdateUserPasswordDto,
 } from "../dto/user.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import Todo from "../models/todo.model.js";
-import Token from "../models/token.model.js";
-import User from "../models/user.model.js";
+import todoRepository from "../repositories/todo.repository.js";
+import tokenRepository from "../repositories/token.repository.js";
+import userRepository from "../repositories/user.repository.js";
 import passwordService from "../services/password.service.js";
 import userStore from "../stores/user.store.js";
+import { IRepository, ITodo, IToken, IUser } from "../types/database.types.js";
 
 class UserService {
+  constructor(
+    private readonly userRepo: IRepository<IUser> = userRepository,
+    private readonly todoRepo: IRepository<ITodo> = todoRepository,
+    private readonly tokenRepo: IRepository<IToken> = tokenRepository
+  ) {}
+
   async create({ name, email, password }: CreateUserDto) {
-    await User.create({
+    await this.userRepo.create({
       name,
       email,
       password: await passwordService.hash(password),
@@ -23,7 +30,7 @@ class UserService {
 
   async find() {
     const user = userStore.get();
-    const foundUser = await User.findById(user, "name email").lean().exec();
+    const foundUser = await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
@@ -34,19 +41,18 @@ class UserService {
 
   async updateName({ name }: UpdateUserNameDto) {
     const user = userStore.get();
-    const foundUser = await User.findById(user, "name").exec();
+    const foundUser = await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
     }
 
-    foundUser.name = name;
-    await foundUser.save();
+    await this.userRepo.update({ id: user }, { name });
   }
 
   async updateEmail({ email, password }: UpdateUserEmailDto) {
     const user = userStore.get();
-    const foundUser = await User.findById(user, "email password").exec();
+    const foundUser = await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
@@ -56,8 +62,7 @@ class UserService {
       throw new HttpException(400);
     }
 
-    foundUser.email = email;
-    await foundUser.save();
+    await this.userRepo.update({ id: user }, { email });
   }
 
   async updatePassword({
@@ -65,7 +70,7 @@ class UserService {
     "new-password": newPassword,
   }: UpdateUserPasswordDto) {
     const user = userStore.get();
-    const foundUser = await User.findById(user, "password").exec();
+    const foundUser = await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
@@ -75,13 +80,15 @@ class UserService {
       throw new HttpException(400);
     }
 
-    foundUser.password = await passwordService.hash(newPassword);
-    await foundUser.save();
+    await this.userRepo.update(
+      { id: user },
+      { password: await passwordService.hash(newPassword) }
+    );
   }
 
   async delete({ password }: DeleteUserDto) {
     const user = userStore.get();
-    const foundUser = await User.findById(user, "password").lean().exec();
+    const foundUser = await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
@@ -93,9 +100,9 @@ class UserService {
 
     // Delete the user and all their data.
     await Promise.all([
-      User.deleteOne({ _id: user }).exec(),
-      Todo.deleteMany({ user }).exec(),
-      Token.deleteMany({ user }).exec(),
+      this.userRepo.deleteOne({ id: user }),
+      this.todoRepo.deleteAll({ user }),
+      this.tokenRepo.deleteAll({ user }),
     ]);
   }
 }

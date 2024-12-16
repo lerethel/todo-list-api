@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
-import { IToken } from "../types/types.js";
+import { IToken } from "../types/database.types.js";
 
-const TokenSchema = new mongoose.Schema<IToken>({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  family: { type: String, required: true },
-  refreshToken: { type: String, required: true },
-});
+const tokenSchema = new mongoose.Schema<IToken>(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    family: { type: String, required: true },
+    refreshToken: { type: String, required: true },
+  },
+  { versionKey: false }
+);
 
-export default mongoose.model<IToken>("Token", TokenSchema);
+export default mongoose.model<IToken>("Token", tokenSchema);

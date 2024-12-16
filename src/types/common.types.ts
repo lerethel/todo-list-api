@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { ValidationChain } from "express-validator";
-import { Types } from "mongoose";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -13,25 +12,6 @@ declare module "express-serve-static-core" {
 
 export interface AsyncUserStorage {
   user: string;
-}
-
-export interface IUser {
-  name: string;
-  email: string;
-  password: string;
-}
-
-export interface IToken {
-  user: Types.ObjectId;
-  family: string;
-  refreshToken: string;
-}
-
-export interface ITodo {
-  user: Types.ObjectId;
-  title: string;
-  description: string;
-  createdAt: Date;
 }
 
 export type ValidatedHandler =

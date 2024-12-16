@@ -2,9 +2,14 @@ import { randomUUID } from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config/config.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import Token from "../models/token.model.js";
+import tokenRepository from "../repositories/token.repository.js";
+import { IRepository, IToken } from "../types/database.types.js";
 
 class TokenService {
+  constructor(
+    private readonly tokenRepo: IRepository<IToken> = tokenRepository
+  ) {}
+
   readonly config = {
     // Both ages are in seconds.
     accessTokenMaxAge: 300,
@@ -27,7 +32,7 @@ class TokenService {
     const family = randomUUID();
     const refreshToken = this.createRefresh(user, family);
 
-    await Token.create({ user, family, refreshToken });
+    await this.tokenRepo.create({ user, family, refreshToken });
 
     return { accessToken: this.createAccess(user), refreshToken };
   }
@@ -49,26 +54,26 @@ class TokenService {
     }
 
     const { user, family } = payload;
-    const storedToken = await Token.findOne({ refreshToken }).lean().exec();
+    const storedToken = await this.tokenRepo.findOne({ refreshToken });
 
     // If a refresh token is in the cookies but not in the database,
     // consider this a reuse attempt and delete the compromised family.
     if (!storedToken) {
-      await Token.deleteOne({ family }).exec();
+      await this.tokenRepo.deleteOne({ family });
       throw new HttpException(403);
     }
 
-    if (storedToken.user.toString() !== user) {
+    if (storedToken.user !== user) {
       throw new HttpException(403);
     }
 
     const newRefreshToken = this.createRefresh(user, family);
 
     // Replace the refresh token with a new one.
-    await Token.updateOne(
+    await this.tokenRepo.update(
       { refreshToken },
       { refreshToken: newRefreshToken }
-    ).exec();
+    );
 
     return {
       accessToken: this.createAccess(user),
@@ -81,7 +86,7 @@ class TokenService {
       return;
     }
 
-    await Token.deleteOne({ refreshToken }).exec();
+    await this.tokenRepo.deleteOne({ refreshToken });
   }
 }
 

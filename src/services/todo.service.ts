@@ -1,31 +1,31 @@
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
-import Todo from "../models/todo.model.js";
+import todoRepository from "../repositories/todo.repository.js";
 import userStore from "../stores/user.store.js";
+import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 
 class TodoService {
-  async create({ title, description }: CreateTodoDto) {
+  constructor(private readonly todoRepo: IRepository<ITodo> = todoRepository) {}
+
+  create({ title, description }: CreateTodoDto) {
     const user = userStore.get();
-    const todo = await Todo.create({ user, title, description });
-    return { id: todo._id, title, description, createdAt: todo.createdAt };
+    return this.todoRepo.create({ user, title, description });
   }
 
   async find({ page, limit, date, sort = "-createdAt" }: FindTodoDto) {
     const user = userStore.get();
-    const selection = Todo.find({ user });
+    const query: QueryFilter<ITodo> = { user };
 
     if (date) {
       const [from, to] = date.split(":");
-      selection.gte("createdAt", new Date(from));
+      query.createdAt = { $gte: new Date(from) };
       if (to) {
-        selection.lte("createdAt", new Date(to));
+        query.createdAt.$lte = new Date(to);
       }
     }
 
-    selection.sort(sort);
-
     // Ignore { page } and { limit } for now to count the total number of pages.
     // This is faster than calling .countDocuments().
-    const unslicedTodos = await selection.lean().exec();
+    const unslicedTodos = await this.todoRepo.findAll(query, { sort });
     const totalPages = Math.ceil(unslicedTodos.length / limit);
 
     const startIndex = (page - 1) * limit;
@@ -35,29 +35,18 @@ class TodoService {
     const todos = unslicedTodos.slice(startIndex, endIndex);
     const total = todos.length;
 
-    return {
-      data: todos.map(({ _id, title, description, createdAt }) => ({
-        id: _id,
-        title,
-        description,
-        createdAt,
-      })),
-      page,
-      limit,
-      total,
-      totalPages,
-    };
+    return { data: todos, page, limit, total, totalPages };
   }
 
   async update(id: string, { title, description }: CreateTodoDto) {
     const user = userStore.get();
-    await Todo.updateOne({ user, _id: id }, { title, description }).exec();
+    await this.todoRepo.update({ user, id }, { title, description });
     return { id, title, description };
   }
 
   async delete(id: string) {
     const user = userStore.get();
-    await Todo.deleteOne({ user, _id: id }).exec();
+    await this.todoRepo.deleteOne({ user, id });
   }
 }
 

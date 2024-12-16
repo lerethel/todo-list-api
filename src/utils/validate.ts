@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";
-import Todo from "../models/todo.model.js";
-import User from "../models/user.model.js";
+import todoRepository from "../repositories/todo.repository.js";
+import userRepository from "../repositories/user.repository.js";
 import userStore from "../stores/user.store.js";
 
 export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
@@ -33,7 +33,7 @@ export const todoIdParam = param("id")
   .custom(async (id, { req }) => {
     const user = userStore.get();
 
-    if (await Todo.exists({ user, _id: id }).exec()) {
+    if (await todoRepository.findOne({ user, id })) {
       return Promise.resolve();
     }
 
@@ -85,7 +85,7 @@ export const userEmailOnSignup = body("email")
   .bail()
   .toLowerCase()
   .custom(async (email, { req }) => {
-    if (await User.exists({ email }).exec()) {
+    if (await userRepository.findOne({ email })) {
       req.validationErrorStatus = 409;
       return Promise.reject();
     }
@@ -107,9 +107,9 @@ export const userEmailOnUpdate = body("email")
   .bail()
   .toLowerCase()
   .custom(async (email, { req }) => {
-    const user = await User.exists({ email }).exec();
+    const user = await userRepository.findOne({ email });
 
-    if (!user || user._id.toString() === userStore.get()) {
+    if (!user || user.id === userStore.get()) {
       return Promise.resolve();
     }
 

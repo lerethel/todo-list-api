@@ -1,10 +1,13 @@
 import { LoginDto } from "../dto/auth.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import User from "../models/user.model.js";
+import userRepository from "../repositories/user.repository.js";
 import passwordService from "../services/password.service.js";
 import tokenService from "../services/token.service.js";
+import { IRepository, IUser } from "../types/database.types.js";
 
 class AuthService {
+  constructor(private readonly userRepo: IRepository<IUser> = userRepository) {}
+
   readonly config = {
     cookieOptions: {
       httpOnly: true,
@@ -15,7 +18,7 @@ class AuthService {
   } as const;
 
   async login({ email, password }: LoginDto) {
-    const foundUser = await User.findOne({ email }).lean().exec();
+    const foundUser = await this.userRepo.findOne({ email });
 
     if (
       !foundUser ||
@@ -24,7 +27,7 @@ class AuthService {
       throw new HttpException(401);
     }
 
-    return tokenService.create(foundUser._id.toString());
+    return tokenService.create(foundUser.id as string);
   }
 
   refresh(jwt?: string) {
