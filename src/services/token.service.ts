@@ -16,19 +16,19 @@ class TokenService {
     refreshTokenMaxAge: 60 * 60 * 24 * 180,
   } as const;
 
-  private createAccess(user: string) {
+  private createAccess(user: unknown) {
     return jwt.sign({ user }, config.ACCESS_TOKEN_SECRET, {
       expiresIn: this.config.accessTokenMaxAge,
     });
   }
 
-  private createRefresh(user: string, family: string) {
+  private createRefresh(user: unknown, family: string) {
     return jwt.sign({ user, family }, config.REFRESH_TOKEN_SECRET, {
       expiresIn: this.config.refreshTokenMaxAge,
     });
   }
 
-  async create(user: string) {
+  async create(user: unknown) {
     const family = randomUUID();
     const refreshToken = this.createRefresh(user, family);
 

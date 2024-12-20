@@ -38,13 +38,13 @@ class TodoService {
     return { data: todos, page, limit, total, totalPages };
   }
 
-  async update(id: string, { title, description }: CreateTodoDto) {
+  async update(id: unknown, { title, description }: CreateTodoDto) {
     const user = userStore.get();
     await this.todoRepo.update({ user, id }, { title, description });
     return { id, title, description };
   }
 
-  async delete(id: string) {
+  async delete(id: unknown) {
     const user = userStore.get();
     await this.todoRepo.deleteOne({ user, id });
   }

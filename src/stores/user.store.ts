@@ -12,7 +12,7 @@ class UserStore {
     return this.store.getStore()!.user;
   }
 
-  set(user: string) {
+  set(user: unknown) {
     this.store.getStore()!.user = user;
   }
 }

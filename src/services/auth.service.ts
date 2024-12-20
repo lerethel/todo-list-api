@@ -27,7 +27,7 @@ class AuthService {
       throw new HttpException(401);
     }
 
-    return tokenService.create(foundUser.id as string);
+    return tokenService.create(foundUser.id);
   }
 
   refresh(jwt?: string) {

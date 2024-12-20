@@ -11,7 +11,7 @@ declare module "express-serve-static-core" {
 }
 
 export interface AsyncUserStorage {
-  user: string;
+  user: unknown;
 }
 
 export type ValidatedHandler =

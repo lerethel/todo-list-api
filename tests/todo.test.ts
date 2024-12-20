@@ -5,7 +5,7 @@ import { fakeObjectId, login, logout, request } from "./helpers/common.js";
 describe("/todos: authed", () => {
   let accessToken: string;
   let refreshToken: string;
-  let todoId: string;
+  let todoId: unknown;
 
   before(async () => ({ accessToken, refreshToken } = await login()));
 

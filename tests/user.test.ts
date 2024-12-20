@@ -75,7 +75,7 @@ describe("/users: account management", () => {
 
   let accessToken: string;
   let refreshToken: string;
-  let user: string;
+  let user: unknown;
 
   describe("create", () => {
     it("POST /signup: expect 201", async () => {
