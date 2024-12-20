@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { verifyAccess } from "../middleware/verify-access.middleware.js";
+import verifyAccessMiddleware from "../middleware/verify-access.middleware.js";
 import userService from "../services/user.service.js";
 import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
@@ -17,14 +17,14 @@ class UserController {
   ];
 
   find: [RequestHandler, RequestHandler] = [
-    verifyAccess,
+    verifyAccessMiddleware,
     async (req, res) => {
       res.status(200).json(await userService.find());
     },
   ];
 
   updateName: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.userName,
     validate.sendErrorsIfExist,
     async ({ body }, res) => {
@@ -34,7 +34,7 @@ class UserController {
   ];
 
   updateEmail: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.userEmailOnUpdate,
     validate.userPassword,
     validate.sendErrorsIfExist,
@@ -45,7 +45,7 @@ class UserController {
   ];
 
   updatePassword: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.userPasswordOnUpdate,
     validate.userNewPassword,
     validate.sendErrorsIfExist,
@@ -56,7 +56,7 @@ class UserController {
   ];
 
   delete: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.userPassword,
     validate.sendErrorsIfExist,
     async ({ body }, res) => {

@@ -1,11 +1,11 @@
-import { verifyAccess } from "../middleware/verify-access.middleware.js";
+import verifyAccessMiddleware from "../middleware/verify-access.middleware.js";
 import todoService from "../services/todo.service.js";
 import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
 class TodoController {
   create: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.todoTitle,
     validate.todoDescription,
     validate.sendErrorsIfExist,
@@ -15,7 +15,7 @@ class TodoController {
   ];
 
   find: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.todoPageQuery,
     validate.todoLimitQuery,
     validate.todoSortQuery,
@@ -33,7 +33,7 @@ class TodoController {
   ];
 
   update: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.todoTitle,
     validate.todoDescription,
     validate.todoIdParam,
@@ -44,7 +44,7 @@ class TodoController {
   ];
 
   delete: ValidatedHandler = [
-    verifyAccess,
+    verifyAccessMiddleware,
     validate.todoIdParam,
     validate.sendErrorsIfExist,
     async ({ params: { id } }, res) => {

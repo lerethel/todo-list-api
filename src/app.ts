@@ -1,12 +1,13 @@
 import cookieParser from "cookie-parser";
-import express, { ErrorRequestHandler } from "express";
-import { rateLimit } from "express-rate-limit";
+import express from "express";
 import mongoose from "mongoose";
 import config from "./config/config.js";
-import { HttpException } from "./exceptions/http.exception.js";
+import errorHandlerMiddleware from "./middleware/error-handler.middleware.js";
+import notFoundHandlerMiddleware from "./middleware/not-found-handler.middleware.js";
+import rateLimitMiddleware from "./middleware/rate-limit.middleware.js";
+import userStoreMiddleware from "./middleware/user-store.middleware.js";
 import todoRouter from "./routes/todo.router.js";
 import userRouter from "./routes/user.router.js";
-import userStore from "./stores/user.store.js";
 import statusCodes from "./utils/status-codes.js";
 
 // A replacement for res.sendStatus() that sends a JSON object in the validation
@@ -18,32 +19,16 @@ express.response.jsonStatus = function (code) {
 const app = express();
 mongoose.connect(config.MONGODB_URI);
 
-app.use(
-  rateLimit({
-    windowMs: 10 * 60 * 1000,
-    limit: config.ENV === "production" ? 30 : 500,
-    standardHeaders: "draft-7",
-    legacyHeaders: false,
-    handler: (req, res, next, { statusCode, message }) =>
-      res.status(statusCode).json([{ message }]),
-  })
-);
-app.use((req, res, next) => userStore.init(next));
+app.use(rateLimitMiddleware);
+app.use(userStoreMiddleware);
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(userRouter);
 app.use(todoRouter);
 
-app.use((req, res) => res.jsonStatus(404));
-
-app.use(((err: Error | HttpException, req, res, next) => {
-  if (err instanceof HttpException) {
-    return res.jsonStatus(err.status);
-  }
-
-  console.error(err.stack);
-  res.jsonStatus(500);
-}) as ErrorRequestHandler);
+app.use(notFoundHandlerMiddleware);
+app.use(errorHandlerMiddleware);
 
 app.listen(config.PORT, () =>
   console.log(`Server is listening on port ${config.PORT}`)
