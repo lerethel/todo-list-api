@@ -24,7 +24,7 @@ Only success status codes are described below. Other status codes are possible i
 
 - Creates a user account
 - Requires the following JSON object: `{ name, email, password }`
-- Returns an access token as `{ token }`
+- Returns a 201 response as `{ message }`
 
 `POST /users/login`
 
@@ -78,7 +78,7 @@ All the to-do routes require a user to be logged in.
 
 - Creates a to-do
 - Requires the following JSON object: `{ title, description }`
-- Returns the newly created to-do as `{ id, title, description }`
+- Returns the newly created to-do as `{ id, title, description, createdAt }`
 
 `GET /todos?page=X&limit=X`
 

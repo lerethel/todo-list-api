@@ -6,9 +6,14 @@ import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 class TodoService {
   constructor(private readonly todoRepo: IRepository<ITodo> = todoRepository) {}
 
-  create({ title, description }: CreateTodoDto) {
+  async create({ title, description }: CreateTodoDto) {
     const user = userStore.get();
-    return this.todoRepo.create({ user, title, description });
+    const { id, createdAt } = await this.todoRepo.create({
+      user,
+      title,
+      description,
+    });
+    return { id, title, description, createdAt };
   }
 
   async find({ page, limit, date, sort = "-createdAt" }: FindTodoDto) {
@@ -35,7 +40,18 @@ class TodoService {
     const todos = unslicedTodos.slice(startIndex, endIndex);
     const total = todos.length;
 
-    return { data: todos, page, limit, total, totalPages };
+    return {
+      data: todos.map(({ id, title, description, createdAt }) => ({
+        id,
+        title,
+        description,
+        createdAt,
+      })),
+      page,
+      limit,
+      total,
+      totalPages,
+    };
   }
 
   async update(id: unknown, { title, description }: CreateTodoDto) {
