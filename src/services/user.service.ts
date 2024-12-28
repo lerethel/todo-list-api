@@ -1,3 +1,6 @@
+import todoRepository from "../database/repositories/todo.repository.js";
+import tokenRepository from "../database/repositories/token.repository.js";
+import userRepository from "../database/repositories/user.repository.js";
 import {
   CreateUserDto,
   DeleteUserDto,
@@ -6,9 +9,6 @@ import {
   UpdateUserPasswordDto,
 } from "../dto/user.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import todoRepository from "../repositories/todo.repository.js";
-import tokenRepository from "../repositories/token.repository.js";
-import userRepository from "../repositories/user.repository.js";
 import passwordService from "../services/password.service.js";
 import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, IToken, IUser } from "../types/database.types.js";

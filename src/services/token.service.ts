@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config/config.js";
+import tokenRepository from "../database/repositories/token.repository.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import tokenRepository from "../repositories/token.repository.js";
 import { IRepository, IToken } from "../types/database.types.js";
 
 class TokenService {

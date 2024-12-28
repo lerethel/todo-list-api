@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import { body, param, query, validationResult } from "express-validator";
 import { isValidObjectId } from "mongoose";
-import todoRepository from "../repositories/todo.repository.js";
-import userRepository from "../repositories/user.repository.js";
+import todoRepository from "../database/repositories/todo.repository.js";
+import userRepository from "../database/repositories/user.repository.js";
 import userStore from "../stores/user.store.js";
 
 export const sendErrorsIfExist: RequestHandler = (req, res, next) => {

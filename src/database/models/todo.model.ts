@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ITodo } from "../types/database.types.js";
+import { ITodo } from "../../types/database.types.js";
 
 const todoSchema = new mongoose.Schema<ITodo>(
   {

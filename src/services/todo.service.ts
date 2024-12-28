@@ -1,5 +1,5 @@
+import todoRepository from "../database/repositories/todo.repository.js";
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
-import todoRepository from "../repositories/todo.repository.js";
 import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 

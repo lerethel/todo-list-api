@@ -1,6 +1,6 @@
+import userRepository from "../database/repositories/user.repository.js";
 import { LoginDto } from "../dto/auth.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import userRepository from "../repositories/user.repository.js";
 import passwordService from "../services/password.service.js";
 import tokenService from "../services/token.service.js";
 import { IRepository, IUser } from "../types/database.types.js";

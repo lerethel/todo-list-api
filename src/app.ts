@@ -1,7 +1,7 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import mongoose from "mongoose";
 import config from "./config/config.js";
+import db from "./database/db.js";
 import errorHandlerMiddleware from "./middleware/error-handler.middleware.js";
 import notFoundHandlerMiddleware from "./middleware/not-found-handler.middleware.js";
 import rateLimitMiddleware from "./middleware/rate-limit.middleware.js";
@@ -17,7 +17,6 @@ express.response.jsonStatus = function (code) {
 };
 
 const app = express();
-mongoose.connect(config.MONGODB_URI);
 
 app.use(rateLimitMiddleware);
 app.use(userStoreMiddleware);
@@ -30,6 +29,8 @@ app.use(todoRouter);
 app.use(notFoundHandlerMiddleware);
 app.use(errorHandlerMiddleware);
 
-app.listen(config.PORT, () =>
-  console.log(`Server is listening on port ${config.PORT}`)
+db.connect().then(() =>
+  app.listen(config.PORT, () =>
+    console.log(`Server is listening on port ${config.PORT}`)
+  )
 );

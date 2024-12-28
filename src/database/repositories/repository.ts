@@ -3,7 +3,7 @@ import {
   IRepository,
   QueryFilter,
   QueryOptions,
-} from "../types/database.types.js";
+} from "../../types/database.types.js";
 
 export default abstract class Repository<T> implements IRepository<T> {
   constructor(private readonly model: Model<T>) {}

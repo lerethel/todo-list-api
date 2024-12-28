@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IToken } from "../types/database.types.js";
+import { IToken } from "../../types/database.types.js";
 
 const tokenSchema = new mongoose.Schema<IToken>(
   {
