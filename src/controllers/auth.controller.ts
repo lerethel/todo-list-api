@@ -1,31 +1,31 @@
-import { RequestHandler } from "express";
+import { Request, Response } from "express";
+import Controller from "../decorators/controller.decorator.js";
+import { Get, Post } from "../decorators/route.decorators.js";
+import Validated from "../decorators/validated.decorator.js";
 import authService from "../services/auth.service.js";
-import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
-class AuthController {
-  login: ValidatedHandler = [
-    validate.userEmailOnLogin,
-    validate.userPassword,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      const { accessToken, refreshToken } = await authService.login(body);
-      res.cookie("jwt", refreshToken, authService.config.cookieOptions);
-      res.json({ token: accessToken });
-    },
-  ];
+@Controller("/users")
+export default class AuthController {
+  @Validated([validate.userEmailOnLogin, validate.userPassword])
+  @Post("/login")
+  async login({ body }: Request, res: Response) {
+    const { accessToken, refreshToken } = await authService.login(body);
+    res.cookie("jwt", refreshToken, authService.config.cookieOptions);
+    res.json({ token: accessToken });
+  }
 
-  refresh: RequestHandler = async ({ cookies: { jwt } }, res) => {
+  @Get("/refresh")
+  async refresh({ cookies: { jwt } }: Request, res: Response) {
     const { accessToken, refreshToken } = await authService.refresh(jwt);
     res.cookie("jwt", refreshToken, authService.config.cookieOptions);
     res.json({ token: accessToken });
-  };
+  }
 
-  logout: RequestHandler = async ({ cookies: { jwt } }, res) => {
+  @Post("/logout")
+  async logout({ cookies: { jwt } }: Request, res: Response) {
     await authService.logout(jwt);
     res.clearCookie("jwt", authService.config.cookieOptions);
     res.jsonStatus(204);
-  };
+  }
 }
-
-export default new AuthController();

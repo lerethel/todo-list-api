@@ -1,69 +1,59 @@
-import { RequestHandler } from "express";
-import verifyAccessMiddleware from "../middleware/verify-access.middleware.js";
+import { Request, Response } from "express";
+import Controller from "../decorators/controller.decorator.js";
+import Protected from "../decorators/protected.decorator.js";
+import { Get, Post, Put } from "../decorators/route.decorators.js";
+import Validated from "../decorators/validated.decorator.js";
 import userService from "../services/user.service.js";
-import { ValidatedHandler } from "../types/common.types.js";
 import * as validate from "../utils/validate.js";
 
-class UserController {
-  create: ValidatedHandler = [
+@Controller("/users")
+export default class UserController {
+  @Validated([
     validate.userName,
     validate.userEmailOnSignup,
     validate.userPassword,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      await userService.create(body);
-      res.jsonStatus(201);
-    },
-  ];
+  ])
+  @Post("/signup")
+  async create({ body }: Request, res: Response) {
+    await userService.create(body);
+    res.jsonStatus(201);
+  }
 
-  find: [RequestHandler, RequestHandler] = [
-    verifyAccessMiddleware,
-    async (req, res) => {
-      res.status(200).json(await userService.find());
-    },
-  ];
+  @Protected
+  @Get("/me")
+  async find(req: Request, res: Response) {
+    res.status(200).json(await userService.find());
+  }
 
-  updateName: ValidatedHandler = [
-    verifyAccessMiddleware,
-    validate.userName,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      await userService.updateName(body);
-      res.jsonStatus(200);
-    },
-  ];
+  @Validated([validate.userName])
+  @Protected
+  @Put("/me/name")
+  async updateName({ body }: Request, res: Response) {
+    await userService.updateName(body);
+    res.jsonStatus(200);
+  }
 
-  updateEmail: ValidatedHandler = [
-    verifyAccessMiddleware,
-    validate.userEmailOnUpdate,
-    validate.userPassword,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      await userService.updateEmail(body);
-      res.jsonStatus(200);
-    },
-  ];
+  @Validated([validate.userEmailOnUpdate, validate.userPassword])
+  @Protected
+  @Put("/me/email")
+  async updateEmail({ body }: Request, res: Response) {
+    await userService.updateEmail(body);
+    res.jsonStatus(200);
+  }
 
-  updatePassword: ValidatedHandler = [
-    verifyAccessMiddleware,
-    validate.userPasswordOnUpdate,
-    validate.userNewPassword,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      await userService.updatePassword(body);
-      res.jsonStatus(200);
-    },
-  ];
+  @Validated([validate.userPasswordOnUpdate, validate.userNewPassword])
+  @Protected
+  @Put("/me/password")
+  async updatePassword({ body }: Request, res: Response) {
+    await userService.updatePassword(body);
+    res.jsonStatus(200);
+  }
 
-  delete: ValidatedHandler = [
-    verifyAccessMiddleware,
-    validate.userPassword,
-    validate.sendErrorsIfExist,
-    async ({ body }, res) => {
-      await userService.delete(body);
-      res.jsonStatus(204);
-    },
-  ];
+  @Validated([validate.userPassword])
+  @Protected
+  @Post("/me/delete")
+  async delete({ body }: Request, res: Response) {
+    await userService.delete(body);
+    res.jsonStatus(204);
+  }
 }
-
-export default new UserController();
