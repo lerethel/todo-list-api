@@ -1,7 +1,4 @@
 declare module "express-serve-static-core" {
-  interface Request {
-    validationErrorStatus?: number;
-  }
   interface Response {
     jsonStatus: (code: number) => Response;
   }

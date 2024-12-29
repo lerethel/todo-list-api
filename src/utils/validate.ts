@@ -1,9 +1,5 @@
 import { RequestHandler } from "express";
 import { body, param, query, validationResult } from "express-validator";
-import { isValidObjectId } from "mongoose";
-import todoRepository from "../database/repositories/todo.repository.js";
-import userRepository from "../database/repositories/user.repository.js";
-import userStore from "../stores/user.store.js";
 
 export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);
@@ -11,7 +7,7 @@ export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
   if (!errors.isEmpty()) {
     // Send only the messages.
     return res
-      .status(req.validationErrorStatus ?? 400)
+      .status(400)
       .json(errors.array().map(({ msg: message }) => ({ message })));
   }
 
@@ -27,20 +23,8 @@ export const todoDescription = body("description")
   .withMessage("To-do description must be provided.");
 
 export const todoIdParam = param("id")
-  .custom((id) => isValidObjectId(id))
-  .withMessage("Valid to-do id must be specified.")
-  .bail()
-  .custom(async (id, { req }) => {
-    const user = userStore.get();
-
-    if (await todoRepository.findOne({ user, id })) {
-      return Promise.resolve();
-    }
-
-    req.validationErrorStatus = 404;
-    return Promise.reject();
-  })
-  .withMessage("Todo does not exist.");
+  .isMongoId()
+  .withMessage("Valid to-do id must be specified.");
 
 export const todoPageQuery = query("page")
   .isNumeric()
@@ -78,45 +62,11 @@ export const userName = body("name")
   .notEmpty()
   .withMessage("User name must be specified.");
 
-export const userEmailOnSignup = body("email")
+export const userEmail = body("email")
   .trim()
-  .isEmail()
-  .withMessage("Valid email must be specified.")
-  .bail()
   .toLowerCase()
-  .custom(async (email, { req }) => {
-    if (await userRepository.findOne({ email })) {
-      req.validationErrorStatus = 409;
-      return Promise.reject();
-    }
-
-    return Promise.resolve();
-  })
-  .withMessage("User already exists.");
-
-export const userEmailOnLogin = body("email")
-  .trim()
   .isEmail()
-  .withMessage("Valid email must be specified.")
-  .toLowerCase();
-
-export const userEmailOnUpdate = body("email")
-  .trim()
-  .isEmail()
-  .withMessage("Valid email must be specified.")
-  .bail()
-  .toLowerCase()
-  .custom(async (email, { req }) => {
-    const user = await userRepository.findOne({ email });
-
-    if (!user || user.id === userStore.get()) {
-      return Promise.resolve();
-    }
-
-    req.validationErrorStatus = 409;
-    return Promise.reject();
-  })
-  .withMessage("User already exists.");
+  .withMessage("Valid email must be specified.");
 
 const createPasswordValidator = (
   field: string,

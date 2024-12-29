@@ -8,11 +8,7 @@ import * as validate from "../utils/validate.js";
 
 @Controller("/users")
 export default class UserController {
-  @Validated([
-    validate.userName,
-    validate.userEmailOnSignup,
-    validate.userPassword,
-  ])
+  @Validated([validate.userName, validate.userEmail, validate.userPassword])
   @Post("/signup")
   async create({ body }: Request, res: Response) {
     await userService.create(body);
@@ -33,7 +29,7 @@ export default class UserController {
     res.jsonStatus(200);
   }
 
-  @Validated([validate.userEmailOnUpdate, validate.userPassword])
+  @Validated([validate.userEmail, validate.userPassword])
   @Protected
   @Put("/me/email")
   async updateEmail({ body }: Request, res: Response) {

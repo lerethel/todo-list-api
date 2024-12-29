@@ -7,7 +7,7 @@ import * as validate from "../utils/validate.js";
 
 @Controller("/users")
 export default class AuthController {
-  @Validated([validate.userEmailOnLogin, validate.userPassword])
+  @Validated([validate.userEmail, validate.userPassword])
   @Post("/login")
   async login({ body }: Request, res: Response) {
     const { accessToken, refreshToken } = await authService.login(body);

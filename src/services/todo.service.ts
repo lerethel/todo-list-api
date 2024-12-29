@@ -1,5 +1,6 @@
 import todoRepository from "../database/repositories/todo.repository.js";
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
+import { HttpException } from "../exceptions/http.exception.js";
 import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 
@@ -56,12 +57,22 @@ class TodoService {
 
   async update(id: unknown, { title, description }: CreateTodoDto) {
     const user = userStore.get();
+
+    if (!(await this.todoRepo.findOne({ user, id }))) {
+      throw new HttpException(404, "Todo does not exist.");
+    }
+
     await this.todoRepo.update({ user, id }, { title, description });
     return { id, title, description };
   }
 
   async delete(id: unknown) {
     const user = userStore.get();
+
+    if (!(await this.todoRepo.findOne({ user, id }))) {
+      throw new HttpException(404, "Todo does not exist.");
+    }
+
     await this.todoRepo.deleteOne({ user, id });
   }
 }

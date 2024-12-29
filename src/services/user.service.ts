@@ -21,6 +21,10 @@ class UserService {
   ) {}
 
   async create({ name, email, password }: CreateUserDto) {
+    if (await this.userRepo.findOne({ email })) {
+      throw new HttpException(409, "User already exists.");
+    }
+
     await this.userRepo.create({
       name,
       email,
@@ -52,7 +56,17 @@ class UserService {
 
   async updateEmail({ email, password }: UpdateUserEmailDto) {
     const user = userStore.get();
-    const foundUser = await this.userRepo.findOne({ id: user });
+    const userByEmail = await this.userRepo.findOne({ email });
+
+    if (userByEmail && userByEmail.id !== user) {
+      throw new HttpException(409, "User already exists.");
+    }
+
+    const foundUser =
+      // Reuse the found record if it's the same user.
+      userByEmail?.id === user
+        ? userByEmail
+        : await this.userRepo.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
