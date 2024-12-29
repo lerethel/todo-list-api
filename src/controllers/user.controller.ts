@@ -4,7 +4,7 @@ import Protected from "../decorators/protected.decorator.js";
 import { Get, Post, Put } from "../decorators/route.decorators.js";
 import Validated from "../decorators/validated.decorator.js";
 import userService from "../services/user.service.js";
-import * as validate from "../utils/validate.js";
+import * as validate from "../validators/validate.js";
 
 @Controller("/users")
 export default class UserController {

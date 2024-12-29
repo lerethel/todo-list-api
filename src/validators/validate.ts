@@ -1,18 +1,4 @@
-import { RequestHandler } from "express";
-import { body, param, query, validationResult } from "express-validator";
-
-export const sendErrorsIfExist: RequestHandler = (req, res, next) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    // Send only the messages.
-    return res
-      .status(400)
-      .json(errors.array().map(({ msg: message }) => ({ message })));
-  }
-
-  next();
-};
+import { body, param, query } from "express-validator";
 
 export const todoTitle = body("title")
   .notEmpty()

@@ -1,15 +1,12 @@
 import { RequestHandler } from "express";
 import { ValidationChain } from "express-validator";
 import { routeMetadata } from "../metadata/route.metadata.js";
-import { sendErrorsIfExist } from "../utils/validate.js";
+import Validator from "../validators/validator.js";
 
 export default function Validated(validators: ValidationChain[]) {
   return (target: RequestHandler, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
-      routeMetadata.get(target)!.validators = [
-        ...validators,
-        sendErrorsIfExist,
-      ];
+      routeMetadata.get(target)!.validator = new Validator(validators);
     });
   };
 }

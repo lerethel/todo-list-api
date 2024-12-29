@@ -4,7 +4,7 @@ import Protected from "../decorators/protected.decorator.js";
 import { Delete, Get, Post, Put } from "../decorators/route.decorators.js";
 import Validated from "../decorators/validated.decorator.js";
 import todoService from "../services/todo.service.js";
-import * as validate from "../utils/validate.js";
+import * as validate from "../validators/validate.js";
 
 @Controller("/todos")
 export default class TodoController {

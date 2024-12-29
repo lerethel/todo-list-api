@@ -11,15 +11,15 @@ export default (controllers: ControllerConstructor[]) => {
   const router = Router();
 
   routeMetadata.forEach(
-    ({ method, path, isProtected, validators, controller }, handler) => {
+    ({ method, path, isProtected, validator, controller }, handler) => {
       const middleware: RequestHandler[] = [];
 
       if (isProtected) {
         middleware.push(verifyAccessMiddleware);
       }
 
-      if (validators) {
-        middleware.push(...validators);
+      if (validator) {
+        middleware.push(...validator.toMiddleware());
       }
 
       const totalPath = controllerMetadata.get(controller.constructor) + path;

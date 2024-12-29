@@ -3,7 +3,7 @@ import Controller from "../decorators/controller.decorator.js";
 import { Get, Post } from "../decorators/route.decorators.js";
 import Validated from "../decorators/validated.decorator.js";
 import authService from "../services/auth.service.js";
-import * as validate from "../utils/validate.js";
+import * as validate from "../validators/validate.js";
 
 @Controller("/users")
 export default class AuthController {
