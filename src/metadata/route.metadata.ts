@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { RouteMethods } from "../types/common.types.js";
+import { ControllerConstructor, RouteMethods } from "../types/common.types.js";
 import Validator from "../validators/validator.js";
 
 export const routeMetadata = new Map<
@@ -9,6 +9,6 @@ export const routeMetadata = new Map<
     path: string;
     isProtected?: boolean;
     validator?: Validator;
-    controller: object;
+    controller: InstanceType<ControllerConstructor>;
   }
 >();

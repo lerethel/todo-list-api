@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { routeMetadata } from "../metadata/route.metadata.js";
-import { RouteMethods } from "../types/common.types.js";
+import { ControllerConstructor, RouteMethods } from "../types/common.types.js";
 
 const Route = (method: RouteMethods, path: string) => {
   return (target: RequestHandler, context: ClassMethodDecoratorContext) => {
@@ -8,7 +8,7 @@ const Route = (method: RouteMethods, path: string) => {
       routeMetadata.set(target, {
         method,
         path: path.endsWith("/") ? path.slice(0, -1) : path,
-        controller: this as object,
+        controller: this as InstanceType<ControllerConstructor>,
       });
     });
   };
