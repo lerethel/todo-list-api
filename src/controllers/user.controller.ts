@@ -6,23 +6,23 @@ import Validated from "../decorators/validated.decorator.js";
 import userService from "../services/user.service.js";
 import * as validate from "../validators/validate.js";
 
+@Protected()
 @Controller("/users")
 export default class UserController {
   @Validated([validate.userName, validate.userEmail, validate.userPassword])
+  @Protected({ excluded: true })
   @Post("/signup")
   async create({ body }: Request, res: Response) {
     await userService.create(body);
     res.jsonStatus(201);
   }
 
-  @Protected
   @Get("/me")
   async find(req: Request, res: Response) {
     res.status(200).json(await userService.find());
   }
 
   @Validated([validate.userName])
-  @Protected
   @Put("/me/name")
   async updateName({ body }: Request, res: Response) {
     await userService.updateName(body);
@@ -30,7 +30,6 @@ export default class UserController {
   }
 
   @Validated([validate.userEmail, validate.userPassword])
-  @Protected
   @Put("/me/email")
   async updateEmail({ body }: Request, res: Response) {
     await userService.updateEmail(body);
@@ -38,7 +37,6 @@ export default class UserController {
   }
 
   @Validated([validate.userPasswordOnUpdate, validate.userNewPassword])
-  @Protected
   @Put("/me/password")
   async updatePassword({ body }: Request, res: Response) {
     await userService.updatePassword(body);
@@ -46,7 +44,6 @@ export default class UserController {
   }
 
   @Validated([validate.userPassword])
-  @Protected
   @Post("/me/delete")
   async delete({ body }: Request, res: Response) {
     await userService.delete(body);

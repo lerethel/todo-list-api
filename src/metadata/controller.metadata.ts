@@ -1,1 +1,4 @@
-export const controllerMetadata = new Map<object, string>();
+export const controllerMetadata = new Map<
+  object,
+  { path: string; isProtected?: boolean }
+>();
