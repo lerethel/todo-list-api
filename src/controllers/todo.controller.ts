@@ -7,7 +7,7 @@ import todoService from "../services/todo.service.js";
 import * as validate from "../validators/validate.js";
 
 @Protected()
-@Controller("/todos")
+@Controller("/todo")
 export default class TodoController {
   @Validated([validate.todoTitle, validate.todoDescription])
   @Post("/")

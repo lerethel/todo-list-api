@@ -5,7 +5,7 @@ import Validated from "../decorators/validated.decorator.js";
 import authService from "../services/auth.service.js";
 import * as validate from "../validators/validate.js";
 
-@Controller("/users")
+@Controller("/auth")
 export default class AuthController {
   @Validated([validate.userEmail, validate.userPassword])
   @Post("/login")
