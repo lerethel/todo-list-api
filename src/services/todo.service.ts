@@ -3,15 +3,16 @@ import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
+import UserStoreService from "./user-store.service.js";
 
 @Injectable()
 export default class TodoService {
   @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
+  @Inject(UserStoreService) protected userStoreService: UserStoreService;
 
   async create({ title, description }: CreateTodoDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const { id, createdAt } = await this.todoRepository.create({
       user,
       title,
@@ -21,7 +22,7 @@ export default class TodoService {
   }
 
   async find({ page, limit, date, sort = "-createdAt" }: FindTodoDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const query: QueryFilter<ITodo> = { user };
 
     if (date) {
@@ -59,7 +60,7 @@ export default class TodoService {
   }
 
   async update(id: unknown, { title, description }: CreateTodoDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
       throw new HttpException(404, "Todo does not exist.");
@@ -70,7 +71,7 @@ export default class TodoService {
   }
 
   async delete(id: unknown) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
       throw new HttpException(404, "Todo does not exist.");

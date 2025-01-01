@@ -12,8 +12,8 @@ import {
 } from "../dto/user.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import PasswordService from "../services/password.service.js";
-import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, IToken, IUser } from "../types/database.types.js";
+import UserStoreService from "./user-store.service.js";
 
 @Injectable()
 export default class UserService {
@@ -21,6 +21,7 @@ export default class UserService {
   @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
   @Inject(TokenRepository) protected tokenRepository: IRepository<IToken>;
   @Inject(PasswordService) protected passwordService: PasswordService;
+  @Inject(UserStoreService) protected userStoreService: UserStoreService;
 
   async create({ name, email, password }: CreateUserDto) {
     if (await this.userRepository.findOne({ email })) {
@@ -35,7 +36,7 @@ export default class UserService {
   }
 
   async find() {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
@@ -46,7 +47,7 @@ export default class UserService {
   }
 
   async updateName({ name }: UpdateUserNameDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
@@ -57,7 +58,7 @@ export default class UserService {
   }
 
   async updateEmail({ email, password }: UpdateUserEmailDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
@@ -85,7 +86,7 @@ export default class UserService {
     password,
     "new-password": newPassword,
   }: UpdateUserPasswordDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
@@ -103,7 +104,7 @@ export default class UserService {
   }
 
   async delete({ password }: DeleteUserDto) {
-    const user = userStore.get();
+    const user = this.userStoreService.get();
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
