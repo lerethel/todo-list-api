@@ -1,15 +1,18 @@
-import todoRepository from "../database/repositories/todo.repository.js";
+import TodoRepository from "../database/repositories/todo.repository.js";
+import Inject from "../decorators/inject.decorator.js";
+import Injectable from "../decorators/injectable.decorator.js";
 import { CreateTodoDto, FindTodoDto } from "../dto/todo.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 
-class TodoService {
-  constructor(private readonly todoRepo: IRepository<ITodo> = todoRepository) {}
+@Injectable()
+export default class TodoService {
+  @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
 
   async create({ title, description }: CreateTodoDto) {
     const user = userStore.get();
-    const { id, createdAt } = await this.todoRepo.create({
+    const { id, createdAt } = await this.todoRepository.create({
       user,
       title,
       description,
@@ -31,7 +34,7 @@ class TodoService {
 
     // Ignore { page } and { limit } for now to count the total number of pages.
     // This is faster than calling .countDocuments().
-    const unslicedTodos = await this.todoRepo.findAll(query, { sort });
+    const unslicedTodos = await this.todoRepository.findAll(query, { sort });
     const totalPages = Math.ceil(unslicedTodos.length / limit);
 
     const startIndex = (page - 1) * limit;
@@ -58,23 +61,21 @@ class TodoService {
   async update(id: unknown, { title, description }: CreateTodoDto) {
     const user = userStore.get();
 
-    if (!(await this.todoRepo.findOne({ user, id }))) {
+    if (!(await this.todoRepository.findOne({ user, id }))) {
       throw new HttpException(404, "Todo does not exist.");
     }
 
-    await this.todoRepo.update({ user, id }, { title, description });
+    await this.todoRepository.update({ user, id }, { title, description });
     return { id, title, description };
   }
 
   async delete(id: unknown) {
     const user = userStore.get();
 
-    if (!(await this.todoRepo.findOne({ user, id }))) {
+    if (!(await this.todoRepository.findOne({ user, id }))) {
       throw new HttpException(404, "Todo does not exist.");
     }
 
-    await this.todoRepo.deleteOne({ user, id });
+    await this.todoRepository.deleteOne({ user, id });
   }
 }
-
-export default new TodoService();

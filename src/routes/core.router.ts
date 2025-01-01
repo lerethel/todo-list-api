@@ -26,7 +26,7 @@ export default (controllers: ControllerConstructor[]) => {
       }
 
       const totalPath = controllerMeta.path + path;
-      router[method](totalPath, middleware, handler);
+      router[method](totalPath, middleware, handler.bind(controller));
       console.log(
         // https://stackoverflow.com/a/41407246
         "\x1b[32m%s\x1b[0m",

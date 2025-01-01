@@ -1,20 +1,23 @@
 import { randomUUID } from "crypto";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config/config.js";
-import tokenRepository from "../database/repositories/token.repository.js";
+import TokenRepository from "../database/repositories/token.repository.js";
+import Inject from "../decorators/inject.decorator.js";
+import Injectable from "../decorators/injectable.decorator.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import { IRepository, IToken } from "../types/database.types.js";
 
-class TokenService {
-  constructor(
-    private readonly tokenRepo: IRepository<IToken> = tokenRepository
-  ) {}
+@Injectable()
+export default class TokenService {
+  @Inject(TokenRepository) protected tokenRepository: IRepository<IToken>;
 
-  readonly config = {
-    // Both ages are in seconds.
-    accessTokenMaxAge: 300,
-    refreshTokenMaxAge: 60 * 60 * 24 * 180,
-  } as const;
+  get config() {
+    return {
+      // Both ages are in seconds.
+      accessTokenMaxAge: 300,
+      refreshTokenMaxAge: 60 * 60 * 24 * 180,
+    } as const;
+  }
 
   private createAccess(user: unknown) {
     return jwt.sign({ user }, config.ACCESS_TOKEN_SECRET, {
@@ -32,7 +35,7 @@ class TokenService {
     const family = randomUUID();
     const refreshToken = this.createRefresh(user, family);
 
-    await this.tokenRepo.create({ user, family, refreshToken });
+    await this.tokenRepository.create({ user, family, refreshToken });
 
     return { accessToken: this.createAccess(user), refreshToken };
   }
@@ -54,12 +57,12 @@ class TokenService {
     }
 
     const { user, family } = payload;
-    const storedToken = await this.tokenRepo.findOne({ refreshToken });
+    const storedToken = await this.tokenRepository.findOne({ refreshToken });
 
     // If a refresh token is in the cookies but not in the database,
     // consider this a reuse attempt and delete the compromised family.
     if (!storedToken) {
-      await this.tokenRepo.deleteOne({ family });
+      await this.tokenRepository.deleteOne({ family });
       throw new HttpException(403);
     }
 
@@ -70,7 +73,7 @@ class TokenService {
     const newRefreshToken = this.createRefresh(user, family);
 
     // Replace the refresh token with a new one.
-    await this.tokenRepo.update(
+    await this.tokenRepository.update(
       { refreshToken },
       { refreshToken: newRefreshToken }
     );
@@ -86,8 +89,6 @@ class TokenService {
       return;
     }
 
-    await this.tokenRepo.deleteOne({ refreshToken });
+    await this.tokenRepository.deleteOne({ refreshToken });
   }
 }
-
-export default new TokenService();

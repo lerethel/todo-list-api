@@ -11,3 +11,5 @@ export interface AsyncUserStorage {
 export type RouteMethods = "post" | "get" | "put" | "delete";
 
 export type ControllerConstructor = new () => object;
+
+export type InjectableConstructor = new (...args: any[]) => any;

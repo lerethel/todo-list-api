@@ -1,6 +1,8 @@
-import todoRepository from "../database/repositories/todo.repository.js";
-import tokenRepository from "../database/repositories/token.repository.js";
-import userRepository from "../database/repositories/user.repository.js";
+import TodoRepository from "../database/repositories/todo.repository.js";
+import TokenRepository from "../database/repositories/token.repository.js";
+import UserRepository from "../database/repositories/user.repository.js";
+import Inject from "../decorators/inject.decorator.js";
+import Injectable from "../decorators/injectable.decorator.js";
 import {
   CreateUserDto,
   DeleteUserDto,
@@ -9,32 +11,32 @@ import {
   UpdateUserPasswordDto,
 } from "../dto/user.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
-import passwordService from "../services/password.service.js";
+import PasswordService from "../services/password.service.js";
 import userStore from "../stores/user.store.js";
 import { IRepository, ITodo, IToken, IUser } from "../types/database.types.js";
 
-class UserService {
-  constructor(
-    private readonly userRepo: IRepository<IUser> = userRepository,
-    private readonly todoRepo: IRepository<ITodo> = todoRepository,
-    private readonly tokenRepo: IRepository<IToken> = tokenRepository
-  ) {}
+@Injectable()
+export default class UserService {
+  @Inject(UserRepository) protected userRepository: IRepository<IUser>;
+  @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
+  @Inject(TokenRepository) protected tokenRepository: IRepository<IToken>;
+  @Inject(PasswordService) protected passwordService: PasswordService;
 
   async create({ name, email, password }: CreateUserDto) {
-    if (await this.userRepo.findOne({ email })) {
+    if (await this.userRepository.findOne({ email })) {
       throw new HttpException(409, "User already exists.");
     }
 
-    await this.userRepo.create({
+    await this.userRepository.create({
       name,
       email,
-      password: await passwordService.hash(password),
+      password: await this.passwordService.hash(password),
     });
   }
 
   async find() {
     const user = userStore.get();
-    const foundUser = await this.userRepo.findOne({ id: user });
+    const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
@@ -45,18 +47,18 @@ class UserService {
 
   async updateName({ name }: UpdateUserNameDto) {
     const user = userStore.get();
-    const foundUser = await this.userRepo.findOne({ id: user });
+    const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
     }
 
-    await this.userRepo.update({ id: user }, { name });
+    await this.userRepository.update({ id: user }, { name });
   }
 
   async updateEmail({ email, password }: UpdateUserEmailDto) {
     const user = userStore.get();
-    const userByEmail = await this.userRepo.findOne({ email });
+    const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
       throw new HttpException(409, "User already exists.");
@@ -66,17 +68,17 @@ class UserService {
       // Reuse the found record if it's the same user.
       userByEmail?.id === user
         ? userByEmail
-        : await this.userRepo.findOne({ id: user });
+        : await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
     }
 
-    if (!(await passwordService.compare(foundUser.password, password))) {
+    if (!(await this.passwordService.compare(foundUser.password, password))) {
       throw new HttpException(400);
     }
 
-    await this.userRepo.update({ id: user }, { email });
+    await this.userRepository.update({ id: user }, { email });
   }
 
   async updatePassword({
@@ -84,41 +86,39 @@ class UserService {
     "new-password": newPassword,
   }: UpdateUserPasswordDto) {
     const user = userStore.get();
-    const foundUser = await this.userRepo.findOne({ id: user });
+    const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
     }
 
-    if (!(await passwordService.compare(foundUser.password, password))) {
+    if (!(await this.passwordService.compare(foundUser.password, password))) {
       throw new HttpException(400);
     }
 
-    await this.userRepo.update(
+    await this.userRepository.update(
       { id: user },
-      { password: await passwordService.hash(newPassword) }
+      { password: await this.passwordService.hash(newPassword) }
     );
   }
 
   async delete({ password }: DeleteUserDto) {
     const user = userStore.get();
-    const foundUser = await this.userRepo.findOne({ id: user });
+    const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
       throw new HttpException(404);
     }
 
-    if (!(await passwordService.compare(foundUser.password, password))) {
+    if (!(await this.passwordService.compare(foundUser.password, password))) {
       throw new HttpException(400);
     }
 
     // Delete the user and all their data.
     await Promise.all([
-      this.userRepo.deleteOne({ id: user }),
-      this.todoRepo.deleteAll({ user }),
-      this.tokenRepo.deleteAll({ user }),
+      this.userRepository.deleteOne({ id: user }),
+      this.todoRepository.deleteAll({ user }),
+      this.tokenRepository.deleteAll({ user }),
     ]);
   }
 }
-
-export default new UserService();

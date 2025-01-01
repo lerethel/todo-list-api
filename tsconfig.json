@@ -10,6 +10,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "strictPropertyInitialization": false,
     "noUnusedLocals": true,
     "exactOptionalPropertyTypes": false,
     "noImplicitOverride": true,
