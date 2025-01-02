@@ -8,8 +8,11 @@ import UserStoreService from "./user-store.service.js";
 
 @Injectable()
 export default class TodoService {
-  @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
-  @Inject(UserStoreService) protected userStoreService: UserStoreService;
+  @Inject(TodoRepository)
+  protected readonly todoRepository: IRepository<ITodo>;
+
+  @Inject(UserStoreService)
+  protected readonly userStoreService: UserStoreService;
 
   async create({ title, description }: CreateTodoDto) {
     const user = this.userStoreService.get();

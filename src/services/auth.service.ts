@@ -9,9 +9,14 @@ import { IRepository, IUser } from "../types/database.types.js";
 
 @Injectable()
 export default class AuthService {
-  @Inject(UserRepository) protected userRepository: IRepository<IUser>;
-  @Inject(TokenService) protected tokenService: TokenService;
-  @Inject(PasswordService) protected passwordService: PasswordService;
+  @Inject(UserRepository)
+  protected readonly userRepository: IRepository<IUser>;
+
+  @Inject(TokenService)
+  protected readonly tokenService: TokenService;
+
+  @Inject(PasswordService)
+  protected readonly passwordService: PasswordService;
 
   get config() {
     return {

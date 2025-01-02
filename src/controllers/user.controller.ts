@@ -10,7 +10,8 @@ import * as validate from "../validators/validate.js";
 @Protected()
 @Controller("/user")
 export default class UserController {
-  @Inject(UserService) protected userService: UserService;
+  @Inject(UserService)
+  protected readonly userService: UserService;
 
   @Validated([validate.userName, validate.userEmail, validate.userPassword])
   @Protected({ excluded: true })

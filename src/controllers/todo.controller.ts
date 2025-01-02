@@ -10,7 +10,8 @@ import * as validate from "../validators/validate.js";
 @Protected()
 @Controller("/todo")
 export default class TodoController {
-  @Inject(TodoService) protected todoService: TodoService;
+  @Inject(TodoService)
+  protected readonly todoService: TodoService;
 
   @Validated([validate.todoTitle, validate.todoDescription])
   @Post("/")

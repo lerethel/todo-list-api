@@ -17,11 +17,20 @@ import UserStoreService from "./user-store.service.js";
 
 @Injectable()
 export default class UserService {
-  @Inject(UserRepository) protected userRepository: IRepository<IUser>;
-  @Inject(TodoRepository) protected todoRepository: IRepository<ITodo>;
-  @Inject(TokenRepository) protected tokenRepository: IRepository<IToken>;
-  @Inject(PasswordService) protected passwordService: PasswordService;
-  @Inject(UserStoreService) protected userStoreService: UserStoreService;
+  @Inject(UserRepository)
+  protected readonly userRepository: IRepository<IUser>;
+
+  @Inject(TodoRepository)
+  protected readonly todoRepository: IRepository<ITodo>;
+
+  @Inject(TokenRepository)
+  protected readonly tokenRepository: IRepository<IToken>;
+
+  @Inject(PasswordService)
+  protected readonly passwordService: PasswordService;
+
+  @Inject(UserStoreService)
+  protected readonly userStoreService: UserStoreService;
 
   async create({ name, email, password }: CreateUserDto) {
     if (await this.userRepository.findOne({ email })) {

@@ -9,7 +9,8 @@ import { IRepository, IToken } from "../types/database.types.js";
 
 @Injectable()
 export default class TokenService {
-  @Inject(TokenRepository) protected tokenRepository: IRepository<IToken>;
+  @Inject(TokenRepository)
+  protected readonly tokenRepository: IRepository<IToken>;
 
   get config() {
     return {

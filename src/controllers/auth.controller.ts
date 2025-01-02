@@ -8,7 +8,8 @@ import * as validate from "../validators/validate.js";
 
 @Controller("/auth")
 export default class AuthController {
-  @Inject(AuthService) protected authService: AuthService;
+  @Inject(AuthService)
+  protected readonly authService: AuthService;
 
   @Validated([validate.userEmail, validate.userPassword])
   @Post("/login")
