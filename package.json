@@ -7,7 +7,9 @@
     "dev": "npx tsx ./src/app.ts",
     "build": "npx rimraf ./build && npx tsc",
     "check": "npx tsc --noEmit",
-    "test": "npm run build && npx tsx ./node_modules/mocha/bin/mocha --exit ./tests/main.ts"
+    "test": "npm run build && npx tsx ./node_modules/mocha/bin/mocha --exit ./tests/main.ts",
+    "docker:up": "docker compose up --build",
+    "docker:test": "docker compose run --rm -e NODE_ENV=test todo-list-api npm test"
   },
   "type": "module",
   "keywords": [],
