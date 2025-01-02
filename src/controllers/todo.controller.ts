@@ -5,13 +5,14 @@ import Protected from "../decorators/protected.decorator.js";
 import { Delete, Get, Post, Put } from "../decorators/route.decorators.js";
 import Validated from "../decorators/validated.decorator.js";
 import TodoService from "../services/todo.service.js";
+import { ITodoService } from "../types/service.types.js";
 import * as validate from "../validators/validate.js";
 
 @Protected()
 @Controller("/todo")
 export default class TodoController {
   @Inject(TodoService)
-  protected readonly todoService: TodoService;
+  protected readonly todoService: ITodoService;
 
   @Validated([validate.todoTitle, validate.todoDescription])
   @Post("/")

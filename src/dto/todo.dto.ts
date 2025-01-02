@@ -9,3 +9,24 @@ export interface FindTodoDto {
   date?: string;
   sort?: string;
 }
+
+export interface CreateTodoReturnDto {
+  id: unknown;
+  title: string;
+  description: string;
+  createdAt?: Date;
+}
+
+export interface FindTodoReturnDto {
+  data: { id: unknown; title: string; description: string; createdAt?: Date }[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface UpdateTodoReturnDto {
+  id: unknown;
+  title: string;
+  description: string;
+}

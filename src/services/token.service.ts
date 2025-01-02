@@ -4,15 +4,17 @@ import config from "../config/config.js";
 import TokenRepository from "../database/repositories/token.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
+import { CreateTokenReturnDto } from "../dto/token.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import { IRepository, IToken } from "../types/database.types.js";
+import { ITokenService, ITokenServiceConfig } from "../types/service.types.js";
 
 @Injectable()
-export default class TokenService {
+export default class TokenService implements ITokenService {
   @Inject(TokenRepository)
   protected readonly tokenRepository: IRepository<IToken>;
 
-  get config() {
+  get config(): ITokenServiceConfig {
     return {
       // Both ages are in seconds.
       accessTokenMaxAge: 300,
@@ -32,7 +34,7 @@ export default class TokenService {
     });
   }
 
-  async create(user: unknown) {
+  async create(user: unknown): Promise<CreateTokenReturnDto> {
     const family = randomUUID();
     const refreshToken = this.createRefresh(user, family);
 
@@ -41,7 +43,7 @@ export default class TokenService {
     return { accessToken: this.createAccess(user), refreshToken };
   }
 
-  async refresh(refreshToken?: string) {
+  async refresh(refreshToken?: string): Promise<CreateTokenReturnDto> {
     if (!refreshToken) {
       throw new HttpException(401);
     }
@@ -85,7 +87,7 @@ export default class TokenService {
     };
   }
 
-  async delete(refreshToken?: string) {
+  async delete(refreshToken?: string): Promise<void> {
     if (!refreshToken) {
       return;
     }

@@ -22,3 +22,8 @@ export interface UpdateUserPasswordDto {
 export interface DeleteUserDto {
   password: string;
 }
+
+export interface FindUserReturnDto {
+  name: string;
+  email: string;
+}
