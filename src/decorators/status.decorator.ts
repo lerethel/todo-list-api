@@ -1,12 +1,10 @@
-import { ValidationChain } from "express-validator";
 import { routeMetadata } from "../metadata/route.metadata.js";
 import { ControllerMethod } from "../types/common.types.js";
-import Validator from "../validators/validator.js";
 
-export default function Validated(validators: ValidationChain[]) {
+export default function Status(status: number) {
   return (target: ControllerMethod, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
-      routeMetadata.get(target)!.validator = new Validator(validators);
+      routeMetadata.get(target)!.status = status;
     });
   };
 }

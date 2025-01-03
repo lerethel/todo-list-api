@@ -1,9 +1,12 @@
-import { RequestHandler } from "express";
 import { routeMetadata } from "../metadata/route.metadata.js";
-import { ControllerConstructor, RouteMethods } from "../types/common.types.js";
+import {
+  ControllerConstructor,
+  ControllerMethod,
+  RouteMethods,
+} from "../types/common.types.js";
 
 const Route = (method: RouteMethods, path: string) => {
-  return (target: RequestHandler, context: ClassMethodDecoratorContext) => {
+  return (target: ControllerMethod, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
       routeMetadata.set(target, {
         method,

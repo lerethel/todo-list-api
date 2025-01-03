@@ -1,16 +1,18 @@
-import { RequestHandler } from "express";
 import { controllerMetadata } from "../metadata/controller.metadata.js";
 import { routeMetadata } from "../metadata/route.metadata.js";
-import { ControllerConstructor } from "../types/common.types.js";
+import {
+  ControllerConstructor,
+  ControllerMethod,
+} from "../types/common.types.js";
 
 export default function Protected({ excluded } = { excluded: false }) {
   return (
-    target: RequestHandler | ControllerConstructor,
+    target: ControllerMethod | ControllerConstructor,
     context: ClassMethodDecoratorContext | ClassDecoratorContext
   ) => {
     if (context.kind === "method") {
       context.addInitializer(function () {
-        routeMetadata.get(target as RequestHandler)!.isProtected = !excluded;
+        routeMetadata.get(target as ControllerMethod)!.isProtected = !excluded;
       });
     } else if (context.kind === "class") {
       controllerMetadata.get(target as ControllerConstructor)!.isProtected =
