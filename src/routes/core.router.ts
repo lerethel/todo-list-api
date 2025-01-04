@@ -5,6 +5,7 @@ import verifyAccessMiddleware from "../middleware/verify-access.middleware.js";
 import {
   ControllerConstructor,
   ControllerMethod,
+  ControllerMethodMetaArg,
 } from "../types/common.types.js";
 
 export default (controllers: ControllerConstructor[]) => {
@@ -14,7 +15,10 @@ export default (controllers: ControllerConstructor[]) => {
   const router = Router();
 
   routeMetadata.forEach(
-    ({ method, path, isProtected, validator, controller, status }, handler) => {
+    (
+      { method, path, isProtected, validator, controller, status, args },
+      handler
+    ) => {
       const middleware: RequestHandler[] = [];
       const controllerMeta = controllerMetadata.get(
         controller.constructor as ControllerConstructor
@@ -35,7 +39,8 @@ export default (controllers: ControllerConstructor[]) => {
         middleware,
         wrapHandler(
           handler.bind(controller),
-          status ?? (method === "post" ? 201 : method === "delete" ? 204 : 200)
+          status ?? (method === "post" ? 201 : method === "delete" ? 204 : 200),
+          args
         )
       );
 
@@ -51,11 +56,24 @@ export default (controllers: ControllerConstructor[]) => {
 };
 
 const wrapHandler =
-  (handler: ControllerMethod, status: number): RequestHandler =>
+  (
+    handler: ControllerMethod,
+    status: number,
+    args?: ControllerMethodMetaArg[]
+  ): RequestHandler =>
   async (req, res) => {
-    const { body, params, query, cookies } = req;
-    const context = { body, params, query, cookies, req, res };
-    const response = await handler(context);
+    const response = await handler(
+      ...(args ?? []).map(({ meta, key }) => {
+        const [http, field] = meta;
+        return http === "req"
+          ? field
+            ? key
+              ? req[field][key]
+              : req[field]
+            : req
+          : res;
+      })
+    );
 
     if (response) {
       res.status(status).json(response);

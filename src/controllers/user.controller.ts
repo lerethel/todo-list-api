@@ -1,10 +1,17 @@
+import Bind, { Body } from "../decorators/bind.decorator.js";
 import Controller from "../decorators/controller.decorator.js";
 import Inject from "../decorators/inject.decorator.js";
 import Protected from "../decorators/protected.decorator.js";
 import { Delete, Get, Post, Put } from "../decorators/route.decorators.js";
 import Validated from "../decorators/validated.decorator.js";
+import {
+  CreateUserDto,
+  DeleteUserDto,
+  UpdateUserEmailDto,
+  UpdateUserNameDto,
+  UpdateUserPasswordDto,
+} from "../dto/user.dto.js";
 import UserService from "../services/user.service.js";
-import { ControllerMethodContext } from "../types/common.types.js";
 import { IUserService } from "../types/service.types.js";
 import * as validate from "../validators/validate.js";
 
@@ -16,9 +23,10 @@ export default class UserController {
 
   @Validated([validate.userName, validate.userEmail, validate.userPassword])
   @Protected({ excluded: true })
+  @Bind(Body())
   @Post("/")
-  async create({ body }: ControllerMethodContext) {
-    await this.userService.create(body);
+  async create(dto: CreateUserDto) {
+    await this.userService.create(dto);
   }
 
   @Get("/")
@@ -27,26 +35,30 @@ export default class UserController {
   }
 
   @Validated([validate.userName])
+  @Bind(Body())
   @Put("/name")
-  async updateName({ body }: ControllerMethodContext) {
-    await this.userService.updateName(body);
+  async updateName(dto: UpdateUserNameDto) {
+    await this.userService.updateName(dto);
   }
 
   @Validated([validate.userEmail, validate.userPassword])
+  @Bind(Body())
   @Put("/email")
-  async updateEmail({ body }: ControllerMethodContext) {
-    await this.userService.updateEmail(body);
+  async updateEmail(dto: UpdateUserEmailDto) {
+    await this.userService.updateEmail(dto);
   }
 
   @Validated([validate.userPasswordOnUpdate, validate.userNewPassword])
+  @Bind(Body())
   @Put("/password")
-  async updatePassword({ body }: ControllerMethodContext) {
-    await this.userService.updatePassword(body);
+  async updatePassword(dto: UpdateUserPasswordDto) {
+    await this.userService.updatePassword(dto);
   }
 
   @Validated([validate.userPassword])
+  @Bind(Body())
   @Delete("/")
-  async delete({ body }: ControllerMethodContext) {
-    await this.userService.delete(body);
+  async delete(dto: DeleteUserDto) {
+    await this.userService.delete(dto);
   }
 }

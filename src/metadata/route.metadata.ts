@@ -1,6 +1,7 @@
 import {
   ControllerConstructor,
   ControllerMethod,
+  ControllerMethodMetaArg,
   RouteMethods,
 } from "../types/common.types.js";
 import Validator from "../validators/validator.js";
@@ -10,9 +11,10 @@ export const routeMetadata = new Map<
   {
     method: RouteMethods;
     path: string;
+    controller: InstanceType<ControllerConstructor>;
     isProtected?: boolean;
     validator?: Validator;
-    controller: InstanceType<ControllerConstructor>;
     status?: number;
+    args?: ControllerMethodMetaArg[];
   }
 >();
