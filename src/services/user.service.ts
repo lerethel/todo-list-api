@@ -1,3 +1,4 @@
+import lang from "../config/lang.js";
 import TodoRepository from "../database/repositories/todo.repository.js";
 import TokenRepository from "../database/repositories/token.repository.js";
 import UserRepository from "../database/repositories/user.repository.js";
@@ -40,7 +41,7 @@ export default class UserService implements IUserService {
 
   async create({ name, email, password }: CreateUserDto): Promise<void> {
     if (await this.userRepository.findOne({ email })) {
-      throw new HttpException(409, "User already exists.");
+      throw new HttpException(409, lang.user.RESERVED_EMAIL);
     }
 
     await this.userRepository.create({
@@ -77,7 +78,7 @@ export default class UserService implements IUserService {
     const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
-      throw new HttpException(409, "User already exists.");
+      throw new HttpException(409, lang.user.RESERVED_EMAIL);
     }
 
     const foundUser =
@@ -91,7 +92,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400);
+      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
     }
 
     await this.userRepository.update({ id: user }, { email });
@@ -109,7 +110,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400);
+      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
     }
 
     await this.userRepository.update(
@@ -127,7 +128,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400);
+      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
     }
 
     // Delete the user and all their data.

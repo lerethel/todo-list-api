@@ -1,24 +1,25 @@
 import { body, param, query } from "express-validator";
+import lang from "../config/lang.js";
 
 export const todoTitle = body("title")
   .notEmpty()
-  .withMessage("To-do title must be specified.");
+  .withMessage(lang.todo.NO_TITLE);
 
 export const todoDescription = body("description")
   .notEmpty()
-  .withMessage("To-do description must be provided.");
+  .withMessage(lang.todo.NO_DESCRIPTION);
 
 export const todoIdParam = param("id")
   .isMongoId()
-  .withMessage("Valid to-do id must be specified.");
+  .withMessage(lang.todo.INVALID_ID);
 
 export const todoPageQuery = query("page")
   .isNumeric()
-  .withMessage("Valid page number must be specified.");
+  .withMessage(lang.todo.INVALID_PAGE);
 
 export const todoLimitQuery = query("limit")
   .isNumeric()
-  .withMessage("Valid max to-do number must be specified.");
+  .withMessage(lang.todo.INVALID_LIMIT);
 
 // date=yyyy-mm-dd -> look from the date; date=yyyy-mm-dd:yyyy-mm-dd -> look between the dates
 // A date starts at 00:00.
@@ -27,7 +28,7 @@ export const todoDateQuery = query("date")
   .optional()
   .trim()
   .custom((value) => rdateQuery.test(value))
-  .withMessage("Valid date must be specified.");
+  .withMessage(lang.todo.INVALID_DATE);
 
 // sort=field -> ascending order; sort=-field -> descending order
 // Multiple fields are allowed and must be separated by a whitespace, e.g., "title -createdAt".
@@ -41,18 +42,18 @@ export const todoSortQuery = query("sort")
       .split(" ")
       .every((field: string) => sortQueryAllowedFields.has(field))
   )
-  .withMessage("Valid field name(s) to sort by must be specified.");
+  .withMessage(lang.todo.INVALID_SORT);
 
 export const userName = body("name")
   .trim()
   .notEmpty()
-  .withMessage("User name must be specified.");
+  .withMessage(lang.user.NO_NAME);
 
 export const userEmail = body("email")
   .trim()
   .toLowerCase()
   .isEmail()
-  .withMessage("Valid email must be specified.");
+  .withMessage(lang.user.INVALID_EMAIL);
 
 const createPasswordValidator = (
   field: string,
@@ -68,23 +69,23 @@ const createPasswordValidator = (
 
 export const userPassword = createPasswordValidator(
   "password",
-  "Password must be specified.",
-  "Password must contain at least 6 characters."
+  lang.user.NO_PASSWORD,
+  lang.user.SHORT_PASSWORD
 );
 
 export const userPasswordOnUpdate = createPasswordValidator(
   "password",
-  "Current password must be specified.",
-  "Current password must contain at least 6 characters."
+  "Current " + lang.user.NO_PASSWORD.toLowerCase(),
+  "Current " + lang.user.SHORT_PASSWORD.toLowerCase()
 );
 
 export const userNewPassword = createPasswordValidator(
   "new-password",
-  "New password must be specified.",
-  "New password must contain at least 6 characters."
+  "New password " + lang.user.NO_PASSWORD.toLowerCase(),
+  "New password " + lang.user.SHORT_PASSWORD.toLowerCase()
 )
   .bail()
   .custom(
     (newPassword, { req }) => newPassword === req.body["confirmed-new-password"]
   )
-  .withMessage("Passwords do not match.");
+  .withMessage(lang.user.PASSWORD_MISMATCH);

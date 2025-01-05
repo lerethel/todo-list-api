@@ -1,3 +1,4 @@
+import lang from "../config/lang.js";
 import UserRepository from "../database/repositories/user.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
@@ -46,7 +47,7 @@ export default class AuthService implements IAuthService {
       !foundUser ||
       !(await this.passwordService.compare(foundUser.password, password))
     ) {
-      throw new HttpException(401);
+      throw new HttpException(401, lang.auth.WRONG_CREDENTIALS);
     }
 
     return this.tokenService.create(foundUser.id);
