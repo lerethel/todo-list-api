@@ -1,6 +1,4 @@
 import lang from "../config/lang.js";
-import TodoRepository from "../database/repositories/todo.repository.js";
-import TokenRepository from "../database/repositories/token.repository.js";
 import UserRepository from "../database/repositories/user.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
@@ -14,7 +12,7 @@ import {
 } from "../dto/user.dto.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import PasswordService from "../services/password.service.js";
-import { IRepository, ITodo, IToken, IUser } from "../types/database.types.js";
+import { IRepository, IUser } from "../types/database.types.js";
 import {
   IPasswordService,
   IUserService,
@@ -26,12 +24,6 @@ import UserStoreService from "./user-store.service.js";
 export default class UserService implements IUserService {
   @Inject(UserRepository)
   protected readonly userRepository: IRepository<IUser>;
-
-  @Inject(TodoRepository)
-  protected readonly todoRepository: IRepository<ITodo>;
-
-  @Inject(TokenRepository)
-  protected readonly tokenRepository: IRepository<IToken>;
 
   @Inject(PasswordService)
   protected readonly passwordService: IPasswordService;
@@ -131,11 +123,6 @@ export default class UserService implements IUserService {
       throw new HttpException(400, lang.auth.WRONG_PASSWORD);
     }
 
-    // Delete the user and all their data.
-    await Promise.all([
-      this.userRepository.deleteOne({ id: user }),
-      this.todoRepository.deleteAll({ user }),
-      this.tokenRepository.deleteAll({ user }),
-    ]);
+    await this.userRepository.deleteOne({ id: user });
   }
 }

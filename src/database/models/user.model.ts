@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { IUser } from "../../types/database.types.js";
+import todoModel from "./todo.model.js";
+import tokenModel from "./token.model.js";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -9,5 +11,13 @@ const userSchema = new mongoose.Schema<IUser>(
   },
   { versionKey: false }
 );
+
+userSchema.post("deleteOne", async function () {
+  const { _id } = this.getFilter();
+  await Promise.all([
+    todoModel.deleteMany({ user: _id }),
+    tokenModel.deleteMany({ user: _id }),
+  ]);
+});
 
 export default mongoose.model<IUser>("User", userSchema);
