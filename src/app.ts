@@ -32,6 +32,6 @@ app.use(errorHandlerMiddleware);
 
 db.connect().then(() =>
   app.listen(config.PORT, () =>
-    console.log(`Server is listening on port ${config.PORT}`)
+    console.log(`Server is listening on port ${config.PORT}, ${config.ENV}`)
   )
 );
