@@ -7,7 +7,7 @@ import {
 export default function Bind(...args: ControllerMethodMetaArg[]) {
   return (target: ControllerMethod, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
-      routeMetadata.get(target)!.args = args;
+      routeMetadata.update(target, { args });
     });
   };
 }

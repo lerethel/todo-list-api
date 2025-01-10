@@ -3,6 +3,6 @@ import { ControllerConstructor } from "../types/common.types.js";
 
 export default function Controller(path: string) {
   return (target: ControllerConstructor) => {
-    controllerMetadata.set(target, { path });
+    controllerMetadata.update(target, { path });
   };
 }

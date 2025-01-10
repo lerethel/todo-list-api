@@ -17,16 +17,16 @@ export default class AuthController {
 
   @Validated([validate.userEmail, validate.userPassword])
   @Status(200)
-  @Bind(Body(), Res())
   @Post("/login")
+  @Bind(Body(), Res())
   async login(dto: LoginUserDto, res: Response) {
     const { accessToken, refreshToken } = await this.authService.login(dto);
     res.cookie("jwt", refreshToken, this.authService.config.cookieOptions);
     return { token: accessToken };
   }
 
-  @Bind(Cookies("jwt"), Res())
   @Get("/refresh")
+  @Bind(Cookies("jwt"), Res())
   async refresh(jwt: string, res: Response) {
     const { accessToken, refreshToken } = await this.authService.refresh(jwt);
     res.cookie("jwt", refreshToken, this.authService.config.cookieOptions);
@@ -34,8 +34,8 @@ export default class AuthController {
   }
 
   @Status(204)
-  @Bind(Cookies("jwt"), Res())
   @Post("/logout")
+  @Bind(Cookies("jwt"), Res())
   async logout(jwt: string, res: Response) {
     await this.authService.logout(jwt);
     res.clearCookie("jwt", this.authService.config.cookieOptions);

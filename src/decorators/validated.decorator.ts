@@ -6,7 +6,7 @@ import Validator from "../validators/validator.js";
 export default function Validated(validators: ValidationChain[]) {
   return (target: ControllerMethod, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
-      routeMetadata.get(target)!.validator = new Validator(validators);
+      routeMetadata.update(target, { validator: new Validator(validators) });
     });
   };
 }

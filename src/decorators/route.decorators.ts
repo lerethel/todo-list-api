@@ -8,7 +8,7 @@ import {
 const Route = (method: RouteMethods, path: string) => {
   return (target: ControllerMethod, context: ClassMethodDecoratorContext) => {
     context.addInitializer(function () {
-      routeMetadata.set(target, {
+      routeMetadata.update(target, {
         method,
         path: path.endsWith("/") ? path.slice(0, -1) : path,
         controller: this as InstanceType<ControllerConstructor>,

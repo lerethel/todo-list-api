@@ -12,11 +12,14 @@ export default function Protected({ excluded } = { excluded: false }) {
   ) => {
     if (context.kind === "method") {
       context.addInitializer(function () {
-        routeMetadata.get(target as ControllerMethod)!.isProtected = !excluded;
+        routeMetadata.update(target as ControllerMethod, {
+          isProtected: !excluded,
+        });
       });
     } else if (context.kind === "class") {
-      controllerMetadata.get(target as ControllerConstructor)!.isProtected =
-        true;
+      controllerMetadata.update(target as ControllerConstructor, {
+        isProtected: true,
+      });
     }
   };
 }

@@ -16,8 +16,8 @@ export default class TodoController {
   protected readonly todoService: ITodoService;
 
   @Validated([validate.todoTitle, validate.todoDescription])
-  @Bind(Body())
   @Post("/")
+  @Bind(Body())
   create(dto: CreateTodoDto) {
     return this.todoService.create(dto);
   }
@@ -28,8 +28,8 @@ export default class TodoController {
     validate.todoSortQuery,
     validate.todoDateQuery,
   ])
-  @Bind(Query())
   @Get("/")
+  @Bind(Query())
   find(dto: FindTodoDto) {
     return this.todoService.find({
       ...dto,
@@ -43,15 +43,15 @@ export default class TodoController {
     validate.todoDescription,
     validate.todoIdParam,
   ])
-  @Bind(Params("id"), Body())
   @Put("/:id")
+  @Bind(Params("id"), Body())
   update(id: unknown, dto: CreateTodoDto) {
     return this.todoService.update(id, dto);
   }
 
   @Validated([validate.todoIdParam])
-  @Bind(Params("id"))
   @Delete("/:id")
+  @Bind(Params("id"))
   async delete(id: unknown) {
     await this.todoService.delete(id);
   }

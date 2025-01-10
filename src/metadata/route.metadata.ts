@@ -5,8 +5,9 @@ import {
   RouteMethods,
 } from "../types/common.types.js";
 import Validator from "../validators/validator.js";
+import Metadata from "./metadata.js";
 
-export const routeMetadata = new Map<
+export const routeMetadata = new Metadata<
   ControllerMethod,
   {
     method: RouteMethods;

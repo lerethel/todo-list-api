@@ -23,8 +23,8 @@ export default class UserController {
 
   @Validated([validate.userName, validate.userEmail, validate.userPassword])
   @Protected({ excluded: true })
-  @Bind(Body())
   @Post("/")
+  @Bind(Body())
   async create(dto: CreateUserDto) {
     await this.userService.create(dto);
   }
@@ -35,29 +35,29 @@ export default class UserController {
   }
 
   @Validated([validate.userName])
-  @Bind(Body())
   @Put("/name")
+  @Bind(Body())
   async updateName(dto: UpdateUserNameDto) {
     await this.userService.updateName(dto);
   }
 
   @Validated([validate.userEmail, validate.userPassword])
-  @Bind(Body())
   @Put("/email")
+  @Bind(Body())
   async updateEmail(dto: UpdateUserEmailDto) {
     await this.userService.updateEmail(dto);
   }
 
   @Validated([validate.userPasswordOnUpdate, validate.userNewPassword])
-  @Bind(Body())
   @Put("/password")
+  @Bind(Body())
   async updatePassword(dto: UpdateUserPasswordDto) {
     await this.userService.updatePassword(dto);
   }
 
   @Validated([validate.userPassword])
-  @Bind(Body())
   @Delete("/")
+  @Bind(Body())
   async delete(dto: DeleteUserDto) {
     await this.userService.delete(dto);
   }
