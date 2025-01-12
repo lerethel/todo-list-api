@@ -1,10 +1,10 @@
 import { rateLimit } from "express-rate-limit";
 import config from "../config/config.js";
 import Env from "../config/enums/env.enum.js";
-import { IMiddleware } from "../types/common.types.js";
+import { IMiddleware, HandlerContext } from "../types/common.types.js";
 
 export default class RateLimitMiddleware implements IMiddleware {
-  use = rateLimit({
+  private readonly limiter = rateLimit({
     windowMs: 10 * 60 * 1000,
     limit: config.ENV === Env.Production ? 30 : 500,
     standardHeaders: "draft-7",
@@ -13,4 +13,8 @@ export default class RateLimitMiddleware implements IMiddleware {
       res.status(statusCode).json([{ message }]);
     },
   });
+
+  use({ req, res, next }: HandlerContext) {
+    this.limiter(req, res, next);
+  }
 }

@@ -1,12 +1,11 @@
-import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config/config.js";
 import { HttpException } from "../exceptions/http.exception.js";
 import userStore from "../stores/user.store.js";
-import { IMiddleware } from "../types/common.types.js";
+import { IMiddleware, HandlerContext } from "../types/common.types.js";
 
 export default class VerifyAccessMiddleware implements IMiddleware {
-  use(req: Request, res: Response, next: NextFunction) {
+  use({ req, next }: HandlerContext) {
     const { authorization } = req.headers;
 
     if (!authorization?.startsWith("Bearer")) {

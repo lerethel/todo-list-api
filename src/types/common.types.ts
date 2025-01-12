@@ -24,15 +24,16 @@ export type ControllerMethodMetaArg = {
   key?: string;
 };
 
+export type HandlerContext = {
+  req: Request;
+  res: Response;
+  next: NextFunction;
+};
+
 export interface IMiddleware {
-  use(req: Request, res: Response, next: NextFunction): any;
+  use(context: HandlerContext): any;
 }
 
 export interface IExceptionFilter {
-  use(
-    error: Error | HttpException,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): any;
+  use(error: Error | HttpException, context: HandlerContext): any;
 }

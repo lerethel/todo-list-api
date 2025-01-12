@@ -1,14 +1,8 @@
-import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../exceptions/http.exception.js";
-import { IExceptionFilter } from "../types/common.types.js";
+import { IExceptionFilter, HandlerContext } from "../types/common.types.js";
 
 export default class ExceptionFilter implements IExceptionFilter {
-  async use(
-    error: Error | HttpException,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  async use(error: Error | HttpException, { res }: HandlerContext) {
     if (error instanceof HttpException) {
       const { message, status } = error;
       return message

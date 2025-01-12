@@ -1,7 +1,8 @@
+import { RequestHandler } from "express";
 import { IMiddleware } from "../../types/common.types.js";
 
-export default (...middleware: (new () => IMiddleware)[]) =>
+export default (...middleware: (new () => IMiddleware)[]): RequestHandler[] =>
   middleware.map((fn) => {
     const handler = new fn();
-    return handler.use.bind(handler);
+    return (req, res, next) => handler.use.call(handler, { req, res, next });
   });
