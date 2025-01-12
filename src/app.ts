@@ -5,7 +5,8 @@ import AuthController from "./controllers/auth.controller.js";
 import TodoController from "./controllers/todo.controller.js";
 import UserController from "./controllers/user.controller.js";
 import db from "./database/db.js";
-import ErrorHandlerMiddleware from "./middleware/error-handler.middleware.js";
+import ExceptionFilter from "./filters/exception.filter.js";
+import useFilter from "./filters/use.filter.js";
 import NotFoundHandlerMiddleware from "./middleware/not-found-handler.middleware.js";
 import RateLimitMiddleware from "./middleware/rate-limit.middleware.js";
 import useMiddleware from "./middleware/use.middleware.js";
@@ -26,7 +27,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(coreRouter([AuthController, UserController, TodoController]));
-app.use(useMiddleware([NotFoundHandlerMiddleware, ErrorHandlerMiddleware]));
+
+app.use(useMiddleware([NotFoundHandlerMiddleware]));
+app.use(useFilter([ExceptionFilter]));
 
 db.connect().then(() =>
   app.listen(config.PORT, () =>

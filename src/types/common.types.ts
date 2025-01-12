@@ -28,7 +28,7 @@ export interface IMiddleware {
   use(req: Request, res: Response, next: NextFunction): any;
 }
 
-export interface IErrorMiddleware {
+export interface IExceptionFilter {
   use(
     error: Error | HttpException,
     req: Request,
