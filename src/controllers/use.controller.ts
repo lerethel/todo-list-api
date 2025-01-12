@@ -52,6 +52,8 @@ export default (controllers: ControllerConstructor[]) => {
         "\x1b[32m%s\x1b[0m",
         `Registered route ${method.toUpperCase()} ${totalPath}`
       );
+
+      routeMetadata.delete(handler);
     }
   );
 
