@@ -20,6 +20,12 @@ export interface IToken {
   refreshToken: string;
 }
 
+export interface IResource {
+  id: unknown;
+  token: string;
+  text: string;
+}
+
 type FilterOption<T> = T | { $gte?: T; $lte?: T };
 
 export type QueryFilter<T> = { [P in keyof T]?: FilterOption<T[P]> };

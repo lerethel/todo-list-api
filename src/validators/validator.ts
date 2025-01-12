@@ -1,20 +1,36 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationChain, validationResult } from "express-validator";
+import Inject from "../decorators/inject.decorator.js";
+import ResourceService from "../services/resource.service.js";
+import { IResourceService } from "../types/service.types.js";
 
 export default class Validator {
-  constructor(private readonly validators: ValidationChain[]) {}
+  @Inject(ResourceService)
+  protected readonly resourceService: IResourceService;
 
-  private sendErrorsIfExist(req: Request, res: Response, next: NextFunction) {
+  constructor(private readonly validators: ValidationChain[]) {
+    this.sendErrorsIfExist = this.sendErrorsIfExist.bind(this);
+  }
+
+  private async sendErrorsIfExist(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      // Send only the messages.
-      return res
-        .status(400)
-        .json(errors.array().map(({ msg: message }) => ({ message })));
+    if (errors.isEmpty()) {
+      return next();
     }
 
-    next();
+    // Send only the messages.
+    res.status(400).json(
+      await Promise.all(
+        errors.array().map(async ({ msg: token }) => ({
+          message: await this.resourceService.find(token),
+        }))
+      )
+    );
   }
 
   toMiddleware() {

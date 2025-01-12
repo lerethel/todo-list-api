@@ -1,0 +1,82 @@
+[
+  {
+    "token": "auth.wrong-credentials",
+    "text": "Login or password is incorrect."
+  },
+  {
+    "token": "auth.wrong-password",
+    "text": "Password is incorrect."
+  },
+  {
+    "token": "user.no-name",
+    "text": "User name must be specified."
+  },
+  {
+    "token": "user.invalid-email",
+    "text": "Valid email must be specified."
+  },
+  {
+    "token": "user.reserved-email",
+    "text": "Email is already reserved."
+  },
+  {
+    "token": "user.no-password",
+    "text": "Password must be specified."
+  },
+  {
+    "token": "user.short-password",
+    "text": "Password must contain at least 6 characters."
+  },
+  {
+    "token": "user.no-current-password",
+    "text": "Current password must be specified."
+  },
+  {
+    "token": "user.short-current-password",
+    "text": "Current password must contain at least 6 characters."
+  },
+  {
+    "token": "user.no-new-password",
+    "text": "New password must be specified."
+  },
+  {
+    "token": "user.short-new-password",
+    "text": "New password must contain at least 6 characters."
+  },
+  {
+    "token": "user.password-mismatch",
+    "text": "Passwords do not match."
+  },
+  {
+    "token": "todo.not-found",
+    "text": "Todo does not exist."
+  },
+  {
+    "token": "todo.no-title",
+    "text": "To-do title must be specified."
+  },
+  {
+    "token": "todo.no-description",
+    "text": "To-do description must be provided."
+  },
+  {
+    "token": "todo.invalid-id",
+    "text": "Valid to-do id must be specified."
+  },
+  {
+    "token": "todo.invalid-page",
+    "text": "Valid page number must be specified."
+  },
+  {
+    "token": "todo.invalid-limit",
+    "text": "Valid max to-do number must be specified."
+  },
+  {
+    "token": "todo.invalid-date",
+    "text": "Valid date must be specified."
+  },
+  {
+    "token": "todo.invalid-sort",
+    "text": "Valid field name(s) to sort by must be specified."
+  }
+]

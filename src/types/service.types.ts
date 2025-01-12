@@ -64,3 +64,7 @@ export interface IUserService {
   updatePassword(dto: UpdateUserPasswordDto): Promise<void>;
   delete(dto: DeleteUserDto): Promise<void>;
 }
+
+export interface IResourceService {
+  find(token: string): Promise<string | undefined>;
+}

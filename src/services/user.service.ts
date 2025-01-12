@@ -1,4 +1,3 @@
-import lang from "../config/lang.js";
 import UserRepository from "../database/repositories/user.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
@@ -33,7 +32,7 @@ export default class UserService implements IUserService {
 
   async create({ name, email, password }: CreateUserDto): Promise<void> {
     if (await this.userRepository.findOne({ email })) {
-      throw new HttpException(409, lang.user.RESERVED_EMAIL);
+      throw new HttpException(409, "user.reserved-email");
     }
 
     await this.userRepository.create({
@@ -70,7 +69,7 @@ export default class UserService implements IUserService {
     const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
-      throw new HttpException(409, lang.user.RESERVED_EMAIL);
+      throw new HttpException(409, "user.reserved-email");
     }
 
     const foundUser =
@@ -84,7 +83,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
+      throw new HttpException(400, "auth.wrong-password");
     }
 
     await this.userRepository.update({ id: user }, { email });
@@ -102,7 +101,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
+      throw new HttpException(400, "auth.wrong-password");
     }
 
     await this.userRepository.update(
@@ -120,7 +119,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, lang.auth.WRONG_PASSWORD);
+      throw new HttpException(400, "auth.wrong-password");
     }
 
     await this.userRepository.deleteOne({ id: user });

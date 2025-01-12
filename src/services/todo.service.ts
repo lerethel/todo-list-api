@@ -1,4 +1,3 @@
-import lang from "../config/lang.js";
 import TodoRepository from "../database/repositories/todo.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
@@ -85,7 +84,7 @@ export default class TodoService implements ITodoService {
     const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
-      throw new HttpException(404, lang.todo.NOT_FOUND);
+      throw new HttpException(404, "todo.not-found");
     }
 
     await this.todoRepository.update({ user, id }, { title, description });
@@ -96,7 +95,7 @@ export default class TodoService implements ITodoService {
     const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
-      throw new HttpException(404, lang.todo.NOT_FOUND);
+      throw new HttpException(404, "todo.not-found");
     }
 
     await this.todoRepository.deleteOne({ user, id });
