@@ -15,19 +15,19 @@ export default class TodoController {
   @Inject(TodoService)
   protected readonly todoService: ITodoService;
 
-  @Validated([validate.todoTitle, validate.todoDescription])
+  @Validated(validate.todoTitle, validate.todoDescription)
   @Post("/")
   @Bind(Body())
   create(dto: CreateTodoDto) {
     return this.todoService.create(dto);
   }
 
-  @Validated([
+  @Validated(
     validate.todoPageQuery,
     validate.todoLimitQuery,
     validate.todoSortQuery,
-    validate.todoDateQuery,
-  ])
+    validate.todoDateQuery
+  )
   @Get("/")
   @Bind(Query())
   find(dto: FindTodoDto) {
@@ -38,18 +38,14 @@ export default class TodoController {
     });
   }
 
-  @Validated([
-    validate.todoTitle,
-    validate.todoDescription,
-    validate.todoIdParam,
-  ])
+  @Validated(validate.todoTitle, validate.todoDescription, validate.todoIdParam)
   @Put("/:id")
   @Bind(Params("id"), Body())
   update(id: unknown, dto: CreateTodoDto) {
     return this.todoService.update(id, dto);
   }
 
-  @Validated([validate.todoIdParam])
+  @Validated(validate.todoIdParam)
   @Delete("/:id")
   @Bind(Params("id"))
   async delete(id: unknown) {

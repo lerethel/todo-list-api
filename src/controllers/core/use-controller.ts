@@ -9,7 +9,7 @@ import {
   ControllerMethodMetaArg,
 } from "../../types/common.types.js";
 
-export default (controllers: ControllerConstructor[]) => {
+export default (...controllers: ControllerConstructor[]) => {
   // Instantiate the controllers to initialize method decorators.
   controllers.forEach((controller) => new controller());
 
@@ -27,7 +27,7 @@ export default (controllers: ControllerConstructor[]) => {
 
       if (isProtected ?? controllerMeta.isProtected) {
         middleware.push(
-          ...(useMiddleware([VerifyAccessMiddleware]) as RequestHandler[])
+          ...(useMiddleware(VerifyAccessMiddleware) as RequestHandler[])
         );
       }
 

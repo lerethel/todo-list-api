@@ -15,7 +15,7 @@ export default class AuthController {
   @Inject(AuthService)
   protected readonly authService: IAuthService;
 
-  @Validated([validate.userEmail, validate.userPassword])
+  @Validated(validate.userEmail, validate.userPassword)
   @Status(200)
   @Post("/login")
   @Bind(Body(), Res())

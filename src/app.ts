@@ -22,14 +22,14 @@ express.response.jsonStatus = function (code) {
 
 const app = express();
 
-app.use(useMiddleware([RateLimitMiddleware, UserStoreMiddleware]));
+app.use(useMiddleware(RateLimitMiddleware, UserStoreMiddleware));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(useController([AuthController, UserController, TodoController]));
+app.use(useController(AuthController, UserController, TodoController));
 
-app.use(useMiddleware([NotFoundHandlerMiddleware]));
-app.use(useFilter([ExceptionFilter]));
+app.use(useMiddleware(NotFoundHandlerMiddleware));
+app.use(useFilter(ExceptionFilter));
 
 db.connect().then(() =>
   app.listen(config.PORT, () =>
