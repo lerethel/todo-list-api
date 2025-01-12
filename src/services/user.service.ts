@@ -1,3 +1,4 @@
+import ResourceToken from "../config/enums/resource-token.enum.js";
 import UserRepository from "../database/repositories/user.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
@@ -32,7 +33,7 @@ export default class UserService implements IUserService {
 
   async create({ name, email, password }: CreateUserDto): Promise<void> {
     if (await this.userRepository.findOne({ email })) {
-      throw new HttpException(409, "user.reserved-email");
+      throw new HttpException(409, ResourceToken.UserReservedEmail);
     }
 
     await this.userRepository.create({
@@ -69,7 +70,7 @@ export default class UserService implements IUserService {
     const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
-      throw new HttpException(409, "user.reserved-email");
+      throw new HttpException(409, ResourceToken.UserReservedEmail);
     }
 
     const foundUser =
@@ -83,7 +84,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, "auth.wrong-password");
+      throw new HttpException(400, ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.update({ id: user }, { email });
@@ -101,7 +102,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, "auth.wrong-password");
+      throw new HttpException(400, ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.update(
@@ -119,7 +120,7 @@ export default class UserService implements IUserService {
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(400, "auth.wrong-password");
+      throw new HttpException(400, ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.deleteOne({ id: user });

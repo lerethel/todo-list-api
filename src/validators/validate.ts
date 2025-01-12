@@ -1,22 +1,25 @@
 import { body, param, query } from "express-validator";
+import ResourceToken from "../config/enums/resource-token.enum.js";
 
-export const todoTitle = body("title").notEmpty().withMessage("todo.no-title");
+export const todoTitle = body("title")
+  .notEmpty()
+  .withMessage(ResourceToken.TodoNoTitle);
 
 export const todoDescription = body("description")
   .notEmpty()
-  .withMessage("todo.no-description");
+  .withMessage(ResourceToken.TodoNoDescription);
 
 export const todoIdParam = param("id")
   .isMongoId()
-  .withMessage("todo.invalid-id");
+  .withMessage(ResourceToken.TodoInvalidId);
 
 export const todoPageQuery = query("page")
   .isNumeric()
-  .withMessage("todo.invalid-page");
+  .withMessage(ResourceToken.TodoInvalidPage);
 
 export const todoLimitQuery = query("limit")
   .isNumeric()
-  .withMessage("todo.invalid-limit");
+  .withMessage(ResourceToken.TodoInvalidLimit);
 
 // date=yyyy-mm-dd -> look from the date; date=yyyy-mm-dd:yyyy-mm-dd -> look between the dates
 // A date starts at 00:00.
@@ -25,7 +28,7 @@ export const todoDateQuery = query("date")
   .optional()
   .trim()
   .custom((value) => rdateQuery.test(value))
-  .withMessage("todo.invalid-date");
+  .withMessage(ResourceToken.TodoInvalidDate);
 
 // sort=field -> ascending order; sort=-field -> descending order
 // Multiple fields are allowed and must be separated by a whitespace, e.g., "title -createdAt".
@@ -39,18 +42,18 @@ export const todoSortQuery = query("sort")
       .split(" ")
       .every((field: string) => sortQueryAllowedFields.has(field))
   )
-  .withMessage("todo.invalid-sort");
+  .withMessage(ResourceToken.TodoInvalidSort);
 
 export const userName = body("name")
   .trim()
   .notEmpty()
-  .withMessage("user.no-name");
+  .withMessage(ResourceToken.UserNoName);
 
 export const userEmail = body("email")
   .trim()
   .toLowerCase()
   .isEmail()
-  .withMessage("user.invalid-email");
+  .withMessage(ResourceToken.UserInvalidEmail);
 
 const createPasswordValidator = (
   field: string,
@@ -66,23 +69,23 @@ const createPasswordValidator = (
 
 export const userPassword = createPasswordValidator(
   "password",
-  "user.no-password",
-  "user.short-password"
+  ResourceToken.UserNoPassword,
+  ResourceToken.UserShortPassword
 );
 
 export const userPasswordOnUpdate = createPasswordValidator(
   "password",
-  "user.no-current-password",
-  "user.short-current-password"
+  ResourceToken.UserNoCurrentPassword,
+  ResourceToken.UserShortCurrentPassword
 );
 
 export const userNewPassword = createPasswordValidator(
   "new-password",
-  "user.no-new-password",
-  "user.short-new-password"
+  ResourceToken.UserNoNewPassword,
+  ResourceToken.UserShortNewPassword
 )
   .bail()
   .custom(
     (newPassword, { req }) => newPassword === req.body["confirmed-new-password"]
   )
-  .withMessage("user.password-mismatch");
+  .withMessage(ResourceToken.UserPasswordMismatch);

@@ -1,3 +1,5 @@
+import ResourceToken from "../config/enums/resource-token.enum.js";
+
 export interface IUser {
   id: unknown;
   name: string;
@@ -22,7 +24,7 @@ export interface IToken {
 
 export interface IResource {
   id: unknown;
-  token: string;
+  token: ResourceToken;
   text: string;
 }
 

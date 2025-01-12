@@ -1,4 +1,5 @@
 import { CookieOptions } from "express";
+import ResourceToken from "../config/enums/resource-token.enum.js";
 import { LoginUserDto } from "../dto/auth.dto.js";
 import {
   CreateTodoDto,
@@ -66,5 +67,5 @@ export interface IUserService {
 }
 
 export interface IResourceService {
-  find(token: string): Promise<string | undefined>;
+  find(token: ResourceToken): Promise<string | undefined>;
 }
