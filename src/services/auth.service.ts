@@ -14,6 +14,7 @@ import {
   IPasswordService,
   ITokenService,
 } from "../types/service.types.js";
+import StatusCode from "../utils/enums/status-code.enum.js";
 
 @Injectable()
 export default class AuthService implements IAuthService {
@@ -47,7 +48,10 @@ export default class AuthService implements IAuthService {
       !foundUser ||
       !(await this.passwordService.compare(foundUser.password, password))
     ) {
-      throw new HttpException(401, ResourceToken.AuthWrongCredentials);
+      throw new HttpException(
+        StatusCode.Unauthorized,
+        ResourceToken.AuthWrongCredentials
+      );
     }
 
     return this.tokenService.create(foundUser.id);

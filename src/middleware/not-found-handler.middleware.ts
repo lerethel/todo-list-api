@@ -1,7 +1,8 @@
-import { IMiddleware, HandlerContext } from "../types/common.types.js";
+import { HandlerContext, IMiddleware } from "../types/common.types.js";
+import StatusCode from "../utils/enums/status-code.enum.js";
 
 export default class NotFoundHandlerMiddleware implements IMiddleware {
   use({ res }: HandlerContext) {
-    res.jsonStatus(404);
+    res.jsonStatus(StatusCode.NotFound);
   }
 }

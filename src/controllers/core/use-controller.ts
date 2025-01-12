@@ -8,6 +8,7 @@ import {
   ControllerMethod,
   ControllerMethodMetaArg,
 } from "../../types/common.types.js";
+import StatusCode from "../../utils/enums/status-code.enum.js";
 
 export default (...controllers: ControllerConstructor[]) => {
   // Instantiate the controllers to initialize method decorators.
@@ -42,7 +43,12 @@ export default (...controllers: ControllerConstructor[]) => {
         middleware,
         wrapHandler(
           handler.bind(controller),
-          status ?? (method === "post" ? 201 : method === "delete" ? 204 : 200),
+          status ??
+            (method === "post"
+              ? StatusCode.Created
+              : method === "delete"
+              ? StatusCode.NoContent
+              : StatusCode.OK),
           args
         )
       );

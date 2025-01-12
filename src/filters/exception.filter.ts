@@ -3,6 +3,7 @@ import { HttpException } from "../exceptions/http.exception.js";
 import ResourceService from "../services/resource.service.js";
 import { HandlerContext, IExceptionFilter } from "../types/common.types.js";
 import { IResourceService } from "../types/service.types.js";
+import StatusCode from "../utils/enums/status-code.enum.js";
 
 export default class ExceptionFilter implements IExceptionFilter {
   @Inject(ResourceService)
@@ -19,6 +20,6 @@ export default class ExceptionFilter implements IExceptionFilter {
     }
 
     console.error(error.stack);
-    res.jsonStatus(500);
+    res.jsonStatus(StatusCode.InternalServerError);
   }
 }

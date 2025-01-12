@@ -8,6 +8,7 @@ import Validated from "../decorators/validated.decorator.js";
 import { LoginUserDto } from "../dto/auth.dto.js";
 import AuthService from "../services/auth.service.js";
 import { IAuthService } from "../types/service.types.js";
+import StatusCode from "../utils/enums/status-code.enum.js";
 import * as validate from "../validators/validate.js";
 
 @Controller("/auth")
@@ -16,7 +17,7 @@ export default class AuthController {
   protected readonly authService: IAuthService;
 
   @Validated(validate.userEmail, validate.userPassword)
-  @Status(200)
+  @Status(StatusCode.OK)
   @Post("/login")
   @Bind(Body(), Res())
   async login(dto: LoginUserDto, res: Response) {
@@ -33,7 +34,7 @@ export default class AuthController {
     return { token: accessToken };
   }
 
-  @Status(204)
+  @Status(StatusCode.NoContent)
   @Post("/logout")
   @Bind(Cookies("jwt"), Res())
   async logout(jwt: string, res: Response) {

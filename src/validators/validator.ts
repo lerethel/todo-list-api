@@ -3,6 +3,7 @@ import { ValidationChain, validationResult } from "express-validator";
 import Inject from "../decorators/inject.decorator.js";
 import ResourceService from "../services/resource.service.js";
 import { IResourceService } from "../types/service.types.js";
+import StatusCode from "../utils/enums/status-code.enum.js";
 
 export default class Validator {
   @Inject(ResourceService)
@@ -24,7 +25,7 @@ export default class Validator {
     }
 
     // Send only the messages.
-    res.status(400).json(
+    res.status(StatusCode.BadRequest).json(
       await Promise.all(
         errors.array().map(async ({ msg: token }) => ({
           message: await this.resourceService.find(token),
