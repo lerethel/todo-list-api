@@ -1,13 +1,13 @@
 import { RequestHandler, Router } from "express";
-import { controllerMetadata } from "../metadata/controller.metadata.js";
-import { routeMetadata } from "../metadata/route.metadata.js";
-import useMiddleware from "../middleware/use.middleware.js";
-import VerifyAccessMiddleware from "../middleware/verify-access.middleware.js";
+import { controllerMetadata } from "../../metadata/controller.metadata.js";
+import { routeMetadata } from "../../metadata/route.metadata.js";
+import useMiddleware from "../../middleware/core/use-middleware.js";
+import VerifyAccessMiddleware from "../../middleware/verify-access.middleware.js";
 import {
   ControllerConstructor,
   ControllerMethod,
   ControllerMethodMetaArg,
-} from "../types/common.types.js";
+} from "../../types/common.types.js";
 
 export default (controllers: ControllerConstructor[]) => {
   // Instantiate the controllers to initialize method decorators.

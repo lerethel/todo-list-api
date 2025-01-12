@@ -1,4 +1,4 @@
-import { IMiddleware } from "../types/common.types.js";
+import { IMiddleware } from "../../types/common.types.js";
 
 export default (middleware: (new () => IMiddleware)[]) =>
   middleware.map((fn) => {
