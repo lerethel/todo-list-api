@@ -1,3 +1,8 @@
-import { RequestHandler } from "express";
+import { NextFunction, Request, Response } from "express";
+import { IMiddleware } from "../types/common.types.js";
 
-export default ((req, res) => res.jsonStatus(404)) satisfies RequestHandler;
+export default class NotFoundHandlerMiddleware implements IMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    res.jsonStatus(404);
+  }
+}

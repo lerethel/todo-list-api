@@ -1,7 +1,8 @@
 import { RequestHandler, Router } from "express";
 import { controllerMetadata } from "../metadata/controller.metadata.js";
 import { routeMetadata } from "../metadata/route.metadata.js";
-import verifyAccessMiddleware from "../middleware/verify-access.middleware.js";
+import useMiddleware from "../middleware/use.middleware.js";
+import VerifyAccessMiddleware from "../middleware/verify-access.middleware.js";
 import {
   ControllerConstructor,
   ControllerMethod,
@@ -25,7 +26,9 @@ export default (controllers: ControllerConstructor[]) => {
       )!;
 
       if (isProtected ?? controllerMeta.isProtected) {
-        middleware.push(verifyAccessMiddleware);
+        middleware.push(
+          ...(useMiddleware([VerifyAccessMiddleware]) as RequestHandler[])
+        );
       }
 
       if (validator) {

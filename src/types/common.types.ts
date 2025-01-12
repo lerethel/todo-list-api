@@ -1,3 +1,6 @@
+import { NextFunction, Request, Response } from "express";
+import { HttpException } from "../exceptions/http.exception.js";
+
 declare module "express-serve-static-core" {
   interface Response {
     jsonStatus: (code: number) => Response;
@@ -20,3 +23,16 @@ export type ControllerMethodMetaArg = {
   meta: ["req", "params" | "body" | "query" | "cookies"] | ["req" | "res"];
   key?: string;
 };
+
+export interface IMiddleware {
+  use(req: Request, res: Response, next: NextFunction): any;
+}
+
+export interface IErrorMiddleware {
+  use(
+    error: Error | HttpException,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): any;
+}
