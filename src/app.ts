@@ -12,12 +12,12 @@ import useMiddleware from "./middleware/core/use-middleware.js";
 import NotFoundHandlerMiddleware from "./middleware/not-found-handler.middleware.js";
 import RateLimitMiddleware from "./middleware/rate-limit.middleware.js";
 import UserStoreMiddleware from "./middleware/user-store.middleware.js";
-import statusCodes from "./utils/status-codes.js";
+import statusMessages from "./utils/status-messages.js";
 
 // A replacement for res.sendStatus() that sends a JSON object in the validation
 // failure format used throughout the project (i.e., as an array of objects).
 express.response.jsonStatus = function (code) {
-  return this.status(code).json([{ message: statusCodes[code] ?? "" }]);
+  return this.status(code).json([{ message: statusMessages[code] ?? "" }]);
 };
 
 const app = express();
