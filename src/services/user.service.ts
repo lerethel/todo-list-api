@@ -10,7 +10,11 @@ import {
   UpdateUserNameDto,
   UpdateUserPasswordDto,
 } from "../dto/user.dto.js";
-import { HttpException } from "../exceptions/http.exception.js";
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from "../exceptions/http.exception.js";
 import PasswordService from "../services/password.service.js";
 import { IRepository, IUser } from "../types/database.types.js";
 import {
@@ -18,7 +22,6 @@ import {
   IUserService,
   IUserStoreService,
 } from "../types/service.types.js";
-import StatusCode from "../utils/enums/status-code.enum.js";
 import UserStoreService from "./user-store.service.js";
 
 @Injectable()
@@ -34,10 +37,7 @@ export default class UserService implements IUserService {
 
   async create({ name, email, password }: CreateUserDto): Promise<void> {
     if (await this.userRepository.findOne({ email })) {
-      throw new HttpException(
-        StatusCode.Conflict,
-        ResourceToken.UserReservedEmail
-      );
+      throw new ConflictException(ResourceToken.UserReservedEmail);
     }
 
     await this.userRepository.create({
@@ -52,7 +52,7 @@ export default class UserService implements IUserService {
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
-      throw new HttpException(StatusCode.NotFound);
+      throw new NotFoundException();
     }
 
     return { name: foundUser.name, email: foundUser.email };
@@ -63,7 +63,7 @@ export default class UserService implements IUserService {
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
-      throw new HttpException(StatusCode.NotFound);
+      throw new NotFoundException();
     }
 
     await this.userRepository.update({ id: user }, { name });
@@ -74,10 +74,7 @@ export default class UserService implements IUserService {
     const userByEmail = await this.userRepository.findOne({ email });
 
     if (userByEmail && userByEmail.id !== user) {
-      throw new HttpException(
-        StatusCode.Conflict,
-        ResourceToken.UserReservedEmail
-      );
+      throw new ConflictException(ResourceToken.UserReservedEmail);
     }
 
     const foundUser =
@@ -87,14 +84,11 @@ export default class UserService implements IUserService {
         : await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
-      throw new HttpException(StatusCode.NotFound);
+      throw new NotFoundException();
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(
-        StatusCode.BadRequest,
-        ResourceToken.AuthWrongPassword
-      );
+      throw new BadRequestException(ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.update({ id: user }, { email });
@@ -108,14 +102,11 @@ export default class UserService implements IUserService {
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
-      throw new HttpException(StatusCode.NotFound);
+      throw new NotFoundException();
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(
-        StatusCode.BadRequest,
-        ResourceToken.AuthWrongPassword
-      );
+      throw new BadRequestException(ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.update(
@@ -129,14 +120,11 @@ export default class UserService implements IUserService {
     const foundUser = await this.userRepository.findOne({ id: user });
 
     if (!foundUser) {
-      throw new HttpException(StatusCode.NotFound);
+      throw new NotFoundException();
     }
 
     if (!(await this.passwordService.compare(foundUser.password, password))) {
-      throw new HttpException(
-        StatusCode.BadRequest,
-        ResourceToken.AuthWrongPassword
-      );
+      throw new BadRequestException(ResourceToken.AuthWrongPassword);
     }
 
     await this.userRepository.deleteOne({ id: user });

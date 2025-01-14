@@ -1,5 +1,5 @@
 import Inject from "../decorators/inject.decorator.js";
-import { HttpException } from "../exceptions/http.exception.js";
+import HttpException from "../exceptions/http.exception.js";
 import ResourceService from "../services/resource.service.js";
 import { HandlerContext, IExceptionFilter } from "../types/common.types.js";
 import { IResourceService } from "../types/service.types.js";

@@ -4,7 +4,7 @@ import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
 import { LoginUserDto } from "../dto/auth.dto.js";
 import { CreateTokenReturnDto } from "../dto/token.dto.js";
-import { HttpException } from "../exceptions/http.exception.js";
+import { UnauthorizedException } from "../exceptions/http.exception.js";
 import PasswordService from "../services/password.service.js";
 import TokenService from "../services/token.service.js";
 import { IRepository, IUser } from "../types/database.types.js";
@@ -14,7 +14,6 @@ import {
   IPasswordService,
   ITokenService,
 } from "../types/service.types.js";
-import StatusCode from "../utils/enums/status-code.enum.js";
 
 @Injectable()
 export default class AuthService implements IAuthService {
@@ -48,10 +47,7 @@ export default class AuthService implements IAuthService {
       !foundUser ||
       !(await this.passwordService.compare(foundUser.password, password))
     ) {
-      throw new HttpException(
-        StatusCode.Unauthorized,
-        ResourceToken.AuthWrongCredentials
-      );
+      throw new UnauthorizedException(ResourceToken.AuthWrongCredentials);
     }
 
     return this.tokenService.create(foundUser.id);

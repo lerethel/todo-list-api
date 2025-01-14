@@ -9,10 +9,9 @@ import {
   FindTodoReturnDto,
   UpdateTodoReturnDto,
 } from "../dto/todo.dto.js";
-import { HttpException } from "../exceptions/http.exception.js";
+import { NotFoundException } from "../exceptions/http.exception.js";
 import { IRepository, ITodo, QueryFilter } from "../types/database.types.js";
 import { ITodoService, IUserStoreService } from "../types/service.types.js";
-import StatusCode from "../utils/enums/status-code.enum.js";
 import UserStoreService from "./user-store.service.js";
 
 @Injectable()
@@ -86,7 +85,7 @@ export default class TodoService implements ITodoService {
     const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
-      throw new HttpException(StatusCode.NotFound, ResourceToken.TodoNotFound);
+      throw new NotFoundException(ResourceToken.TodoNotFound);
     }
 
     await this.todoRepository.update({ user, id }, { title, description });
@@ -97,7 +96,7 @@ export default class TodoService implements ITodoService {
     const user = this.userStoreService.get();
 
     if (!(await this.todoRepository.findOne({ user, id }))) {
-      throw new HttpException(StatusCode.NotFound, ResourceToken.TodoNotFound);
+      throw new NotFoundException(ResourceToken.TodoNotFound);
     }
 
     await this.todoRepository.deleteOne({ user, id });

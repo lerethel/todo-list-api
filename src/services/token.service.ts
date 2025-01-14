@@ -5,10 +5,12 @@ import TokenRepository from "../database/repositories/token.repository.js";
 import Inject from "../decorators/inject.decorator.js";
 import Injectable from "../decorators/injectable.decorator.js";
 import { CreateTokenReturnDto } from "../dto/token.dto.js";
-import { HttpException } from "../exceptions/http.exception.js";
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from "../exceptions/http.exception.js";
 import { IRepository, IToken } from "../types/database.types.js";
 import { ITokenService, ITokenServiceConfig } from "../types/service.types.js";
-import StatusCode from "../utils/enums/status-code.enum.js";
 
 @Injectable()
 export default class TokenService implements ITokenService {
@@ -46,7 +48,7 @@ export default class TokenService implements ITokenService {
 
   async refresh(refreshToken?: string): Promise<CreateTokenReturnDto> {
     if (!refreshToken) {
-      throw new HttpException(StatusCode.Unauthorized);
+      throw new UnauthorizedException();
     }
 
     let payload: JwtPayload;
@@ -57,7 +59,7 @@ export default class TokenService implements ITokenService {
         config.REFRESH_TOKEN_SECRET
       ) as JwtPayload;
     } catch {
-      throw new HttpException(StatusCode.Forbidden);
+      throw new ForbiddenException();
     }
 
     const { user, family } = payload;
@@ -67,11 +69,11 @@ export default class TokenService implements ITokenService {
     // consider this a reuse attempt and delete the compromised family.
     if (!storedToken) {
       await this.tokenRepository.deleteOne({ family });
-      throw new HttpException(StatusCode.Forbidden);
+      throw new ForbiddenException();
     }
 
     if (storedToken.user !== user) {
-      throw new HttpException(StatusCode.Forbidden);
+      throw new ForbiddenException();
     }
 
     const newRefreshToken = this.createRefresh(user, family);

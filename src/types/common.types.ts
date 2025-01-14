@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../exceptions/http.exception.js";
+import HttpException from "../exceptions/http.exception.js";
 
 declare module "express-serve-static-core" {
   interface Response {
