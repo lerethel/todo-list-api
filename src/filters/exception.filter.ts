@@ -10,16 +10,23 @@ export default class ExceptionFilter implements IExceptionFilter {
   protected readonly resourceService: IResourceService;
 
   async use(error: Error | HttpException, { res }: HandlerContext) {
-    if (error instanceof HttpException) {
-      const { token, status } = error;
-      return token
-        ? res
-            .status(status)
-            .json([{ message: await this.resourceService.find(token) }])
-        : res.jsonStatus(status);
+    if (!(error instanceof HttpException)) {
+      console.error(error.stack);
+      return res.jsonStatus(StatusCode.InternalServerError);
     }
 
-    console.error(error.stack);
-    res.jsonStatus(StatusCode.InternalServerError);
+    const { token, status } = error;
+
+    if (!token) {
+      return res.jsonStatus(status);
+    }
+
+    res.status(status).json(
+      await Promise.all(
+        (Array.isArray(token) ? token : [token]).map(async (token) => ({
+          message: await this.resourceService.find(token),
+        }))
+      )
+    );
   }
 }

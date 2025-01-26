@@ -8,9 +8,11 @@ import NotFoundHandlerMiddleware from "./middleware/not-found-handler.middleware
 import RateLimitMiddleware from "./middleware/rate-limit.middleware.js";
 import UserStoreMiddleware from "./middleware/user-store.middleware.js";
 import Server from "./server.js";
+import Validator from "./validators/validator.js";
 
 const app = new Server();
 
+app.useValidator(Validator);
 app.useMiddleware(RateLimitMiddleware, UserStoreMiddleware);
 app.useController(AuthController, UserController, TodoController);
 app.useMiddleware(NotFoundHandlerMiddleware);

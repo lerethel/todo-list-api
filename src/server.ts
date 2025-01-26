@@ -4,6 +4,7 @@ import config from "./config/config.js";
 import useController from "./controllers/core/use-controller.js";
 import useFilter from "./filters/core/use-filter.js";
 import useMiddleware from "./middleware/core/use-middleware.js";
+import { ValidatorConstructor } from "./types/common.types.js";
 import statusMessages from "./utils/status-messages.js";
 
 // A replacement for res.sendStatus() that sends a JSON object in the validation
@@ -20,6 +21,10 @@ export default class Server {
   constructor(private readonly app = express()) {
     this.app.use(express.json());
     this.app.use(cookieParser());
+  }
+
+  useValidator(validator: ValidatorConstructor) {
+    this.app.validator = validator;
   }
 
   useController(...controllers: Controllers) {

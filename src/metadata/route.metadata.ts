@@ -1,10 +1,10 @@
+import { ValidationChain } from "express-validator";
 import {
   ControllerConstructor,
   ControllerMethod,
   ControllerMethodMetaArg,
   RouteMethods,
 } from "../types/common.types.js";
-import Validator from "../validators/validator.js";
 import Metadata from "./metadata.js";
 
 export const routeMetadata = new Metadata<
@@ -14,7 +14,7 @@ export const routeMetadata = new Metadata<
     path: string;
     controller: InstanceType<ControllerConstructor>;
     isProtected?: boolean;
-    validator?: Validator;
+    validations?: ValidationChain[];
     status?: number;
     args?: ControllerMethodMetaArg[];
   }

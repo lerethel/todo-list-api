@@ -2,12 +2,15 @@ import ResourceToken from "../config/enums/resource-token.enum.js";
 import StatusCode from "../utils/enums/status-code.enum.js";
 
 export default class HttpException {
-  constructor(readonly status: number, readonly token?: ResourceToken) {}
+  constructor(
+    readonly status: number,
+    readonly token?: ResourceToken | ResourceToken[]
+  ) {}
 }
 
 const createStatusException = (status: StatusCode) =>
   class extends HttpException {
-    constructor(token?: ResourceToken) {
+    constructor(token?: ResourceToken | ResourceToken[]) {
       super(status, token);
     }
   };

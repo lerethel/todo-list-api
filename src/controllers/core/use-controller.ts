@@ -1,4 +1,5 @@
 import { RequestHandler, Router } from "express";
+import { ValidationChain } from "express-validator";
 import { controllerMetadata } from "../../metadata/controller.metadata.js";
 import { routeMetadata } from "../../metadata/route.metadata.js";
 import useMiddleware from "../../middleware/core/use-middleware.js";
@@ -18,29 +19,20 @@ export default (...controllers: ControllerConstructor[]) => {
 
   routeMetadata.forEach(
     (
-      { method, path, isProtected, validator, controller, status, args },
+      { method, path, isProtected, validations, controller, status, args },
       handler
     ) => {
-      const middleware: RequestHandler[] = [];
       const controllerMeta = controllerMetadata.get(
         controller.constructor as ControllerConstructor
       )!;
-
-      if (isProtected ?? controllerMeta.isProtected) {
-        middleware.push(
-          ...(useMiddleware(VerifyAccessMiddleware) as RequestHandler[])
-        );
-      }
-
-      if (validator) {
-        middleware.push(...validator.toMiddleware());
-      }
 
       const totalPath = controllerMeta.path + path;
 
       router[method](
         totalPath,
-        middleware,
+        isProtected ?? controllerMeta.isProtected
+          ? useMiddleware(VerifyAccessMiddleware)
+          : [],
         wrapHandler(
           handler.bind(controller),
           status ??
@@ -49,7 +41,8 @@ export default (...controllers: ControllerConstructor[]) => {
               : method === "delete"
               ? StatusCode.NoContent
               : StatusCode.OK),
-          args
+          args,
+          validations
         )
       );
 
@@ -70,9 +63,16 @@ const wrapHandler =
   (
     handler: ControllerMethod,
     status: number,
-    args?: ControllerMethodMetaArg[]
+    args?: ControllerMethodMetaArg[],
+    validations?: ValidationChain[]
   ): RequestHandler =>
   async (req, res) => {
+    const { validator } = req.app;
+
+    if (validator && validations) {
+      await new validator(validations).run(req);
+    }
+
     const response = await handler(
       ...(args ?? []).map(({ meta, key }) => {
         const [http, field] = meta;

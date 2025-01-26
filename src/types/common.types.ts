@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
+import { ValidationChain } from "express-validator";
 import HttpException from "../exceptions/http.exception.js";
 
 declare module "express-serve-static-core" {
+  interface Application {
+    validator?: ValidatorConstructor;
+  }
   interface Response {
     jsonStatus: (code: number) => Response;
   }
@@ -30,10 +34,18 @@ export type HandlerContext = {
   next: NextFunction;
 };
 
+export type ValidatorConstructor = new (
+  validations: ValidationChain[]
+) => IValidator;
+
 export interface IMiddleware {
   use(context: HandlerContext): any;
 }
 
 export interface IExceptionFilter {
   use(error: Error | HttpException, context: HandlerContext): any;
+}
+
+export interface IValidator {
+  run(req: Request): Promise<void>;
 }
